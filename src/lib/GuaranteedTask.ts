@@ -6,6 +6,7 @@ import type TaskRunner from './TaskRunner';
 export type GuaranteedTaskOptions = {
   /** id of task inside database */
   id: string;
+  attempt: number;
   /** arguments of task */
   args: DatabaseField<{ type: 'jsob' }>;
   /** id of next task if successful */
@@ -20,16 +21,17 @@ export default abstract class GuaranteedTask {
   id: string;
 
   name: string;
-  args: DatabaseField<{ type: 'jsob' }>;
+  args: unknown;
   dependency: unknown;
   taskRunner: TaskRunner;
   hasParent?: boolean;
-  nextTaskId: UUID;
-  attempt = 0;
+  nextTaskId: string;
+  attempt: number;
 
   constructor(options: GuaranteedTaskOptions) {
     this.id = options.id;
     this.args = options.args;
+    this.attempt = options.att;
     this.name = this.constructor.name;
     this.nextTaskId = options.nextTaskId;
     this.dependency = options.dependency;
