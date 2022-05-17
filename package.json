@@ -40,18 +40,17 @@
   "engines": {
     "node": ">=10"
   },
-  "dependencies": {
-    "@bitauth/libauth": "^1.17.1"
-  },
   "devDependencies": {
     "@ava/typescript": "^1.1.1",
     "@istanbuljs/nyc-config-typescript": "^1.0.1",
+    "@types/node-cleanup": "^2.1.2",
+    "@types/pg": "^8.6.5",
     "@typescript-eslint/eslint-plugin": "^4.0.1",
     "@typescript-eslint/parser": "^4.0.1",
     "ava": "^3.12.1",
     "codecov": "^3.5.0",
     "cspell": "^4.1.0",
-    "cz-conventional-changelog": "^3.3.0",
+    "cz-conventional-changelog": "^3.0.1",
     "eslint": "^7.8.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-eslint-comments": "^3.2.0",
@@ -64,8 +63,8 @@
     "prettier": "^2.1.1",
     "standard-version": "^9.0.0",
     "ts-node": "^9.0.0",
-    "typedoc": "^0.19.0",
-    "typescript": "^4.0.2"
+    "typedoc": "^0.22.15",
+    "typescript": "^4.6.4"
   },
   "files": [
     "build/main",
@@ -101,5 +100,22 @@
     "exclude": [
       "**/*.spec.js"
     ]
+  },
+  "dependencies": {
+    "@deepkit/core": "^1.0.1-alpha.65",
+    "@deepkit/injector": "^1.0.1-alpha.71",
+    "@deepkit/logger": "^1.0.1-alpha.65",
+    "@deepkit/orm": "^1.0.1-alpha.71",
+    "@deepkit/postgres": "^1.0.1-alpha.71",
+    "@deepkit/sql": "^1.0.1-alpha.71",
+    "@deepkit/sqlite": "^1.0.1-alpha.71",
+    "@deepkit/stopwatch": "^1.0.1-alpha.71",
+    "@deepkit/type": "^1.0.1-alpha.71",
+    "@deepkit/type-compiler": "^1.0.1-alpha.71",
+    "config": "^3.3.7",
+    "dotenv": "^16.0.1",
+    "node-cleanup": "^2.1.2",
+    "pg": "^8.7.3",
+    "rxjs": "^7.5.5"
   }
 }
