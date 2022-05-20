@@ -26,6 +26,6 @@ export class Task {
   ) {
     this.name = name;
     this.args = args;
-    this.nextTaskId = prevTaskId;
+    // this.nextTaskId = prevTaskId;
   }
 }

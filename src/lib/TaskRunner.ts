@@ -191,7 +191,7 @@ export default class TaskRunner {
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           // because JSON.parse(null) is valid and throws no error.
-          args: JSON.parse(plan.args) as unknown,
+          args: plan.args as unknown,
           nextTaskId: prevTaskId,
           taskRunner: this,
         })
@@ -375,7 +375,7 @@ export default class TaskRunner {
               // eslint-disable-next-line @typescript-eslint/ban-ts-comment
               // @ts-ignore
               // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-              args: JSON.parse(data.taskRow.args),
+              args: data.taskRow.args,
               attempt: data.taskRow.attempt,
               nextTaskId: data.taskRow.nextTaskId,
               taskRunner: this,

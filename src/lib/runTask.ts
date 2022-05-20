@@ -6,11 +6,12 @@ config();
 
 class SendMailTask extends GuaranteedTask {
   start() {
+    console.log('adsf');
     return 'start';
   }
 
-  sendMail(args: unknown) {
-    return 'heeloo';
+  sendMail(args: any) {
+    console.log(`args: ${args}`);
   }
 }
 
@@ -18,11 +19,12 @@ class SendMailTask extends GuaranteedTask {
   const taskRunner = new TaskRunner({
     Tasks: [SendMailTask],
   });
-  await taskRunner.start(); // don't forget to start the task runner
-  await taskRunner.execute(SendMailTask, {
+  // await taskRunner.start(); // don't forget to start the task runner
+  const info = await taskRunner.execute(SendMailTask, {
     to: 'example@example.com',
     subject: 'ehmm',
     text: 'nothing',
   });
-  void taskRunner.stop();
+  console.log(`info: ${JSON.stringify(info)}`);
+  // void taskRunner.stop();
 })();

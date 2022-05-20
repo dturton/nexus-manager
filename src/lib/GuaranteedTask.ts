@@ -17,21 +17,20 @@ export type GuaranteedTaskOptions = {
   taskRunner: TaskRunner;
 };
 
-export default abstract class GuaranteedTask {
+export default abstract class GuaranteedTask extends Task {
   id: string;
-
   name: string;
-  args: unknown;
   dependency: unknown;
   taskRunner: TaskRunner;
   hasParent?: boolean;
-  nextTaskId: string;
+  nextTaskId?: string;
   attempt: number;
 
   constructor(options: GuaranteedTaskOptions) {
+    super('any', {});
     this.id = options.id;
     this.args = options.args;
-    this.attempt = options.att;
+    this.attempt = options.attempt;
     this.name = this.constructor.name;
     this.nextTaskId = options.nextTaskId;
     this.dependency = options.dependency;
