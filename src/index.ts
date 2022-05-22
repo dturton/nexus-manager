@@ -1,5 +1,16 @@
-import GuaranteedTask from './lib/GuaranteedTask';
-import TaskRunner from './lib/TaskRunner';
-import TaskChain from './lib/TaskChain';
+import bree from './bree';
+import Graceful from '@ladjs/graceful';
+import Store from './Store';
+const graceful = new Graceful({
+  brees: [bree],
+});
 
-export { GuaranteedTask, TaskRunner, TaskChain };
+async function main() {
+  graceful.listen();
+  Store.init(bree);
+  bree.run('worker1');
+}
+
+main().catch((e) => {
+  throw e;
+});
