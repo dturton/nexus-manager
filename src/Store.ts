@@ -27,7 +27,7 @@ class Store {
     };
   }
 
-  getStatus(job: { name: any }) {
+  getJobStatus(job: { name: any }) {
     let name = job.name;
     let bree = this.bree;
     let status = 'done';
@@ -56,7 +56,7 @@ class Store {
     return this.bree.config.jobs.map(
       (job: { name: any; interval: any; path: any }) => {
         let executions = monitor.getExecutions(job.name);
-        const status = this.getStatus(job);
+        const status = this.getJobStatus(job);
         return {
           name: job.name,
           status,

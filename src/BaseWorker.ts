@@ -2,19 +2,21 @@ let path = require('path');
 import Monitor from './Monitor';
 import { ResultCode } from './types';
 const { parentPort } = require('worker_threads');
+import logger from './logger';
+import pRetry, { AbortError } from 'p-retry';
 
 export default abstract class BaseWorker {
   filePath: string;
-  jobId: any;
   executionId: any;
   logger: any;
   resultCode: ResultCode = 'CREATED';
-
   monitor: Monitor;
+  workerName: any;
 
   constructor(filePath: string) {
     this.filePath = filePath;
-    this.jobId = path.basename(filePath, path.extname(filePath));
+    this.logger = logger;
+    this.workerName = path.basename(filePath, path.extname(filePath));
     this.monitor = new Monitor();
     if (parentPort) {
       parentPort.once('message', async (message: string) => {
@@ -31,26 +33,25 @@ export default abstract class BaseWorker {
   }
 
   async start() {
-    this.executionId = this.monitor.startExecution(this.jobId);
-    // this.logger = require('../logger').getLogger(this.jobId, this.executionId);
+    this.executionId = await this.monitor.startExecution(this.workerName, {});
+    this.logger.info(this.workerName, this.executionId);
 
     try {
-      this.resultCode = await this.run();
+      this.resultCode = await pRetry(this.run, { retries: 5 });
     } catch (error) {
       const e = error as Error;
       this.resultCode = 'ERROR';
       this.logger.error(e.message + e.stack);
     }
-    this.done();
+    await this.done();
   }
 
-  async onCancel() {}
-
-  done() {
+  async done() {
     if (this.resultCode == undefined) {
       this.resultCode = 'EXECUTION_SUCCESSFUL';
     }
-    this.monitor.endExecution(this.executionId, this.resultCode);
+
+    await this.monitor.endExecution(this.executionId, this.resultCode);
 
     if (parentPort) {
       parentPort.postMessage('done');
@@ -59,17 +60,13 @@ export default abstract class BaseWorker {
     }
   }
 
+  async onCancel() {}
+
   async cancel() {
     await this.onCancel();
-
-    this.logger.info('Work cancelled !');
-
+    this.logger.info('Work cancelled!');
     this.monitor.endExecution(this.executionId, 'CANCELLED');
-
-    if (parentPort) {
-      parentPort.postMessage('cancelled');
-    } else {
-      process.exit(0);
-    }
+    if (parentPort) parentPort.postMessage('cancelled');
+    else process.exit(0);
   }
 }

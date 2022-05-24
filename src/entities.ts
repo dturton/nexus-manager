@@ -6,15 +6,18 @@ import {
   DatabaseField,
   AutoIncrement,
 } from '@deepkit/type';
+import { ResultCode } from './types';
 
-@entity.name('jobs')
-export class Job {
+@entity.name('jobsexecutions')
+export class JobExecution {
   id: UUID & PrimaryKey = uuid();
   createdAt: Date = new Date();
   name: string;
+  attemps: number = 0;
   correlationId?: UUID;
   input: DatabaseField<{ type: 'jsob' }> = {};
   result: DatabaseField<{ type: 'jsob' }> = {};
+  resultCode: string = 'CREATED';
 
   constructor(name: string, input: any) {
     this.name = name;

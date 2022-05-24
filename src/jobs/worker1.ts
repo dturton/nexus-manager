@@ -9,7 +9,7 @@ const ms = require('ms');
 class Worker1 extends BaseWorker {
   public async run() {
     if (parentPort) parentPort.postMessage('started');
-    await delay(ms('2s'));
+    await delay(ms('5s'));
 
     return 'EXECUTION_SUCCESSFUL' as ResultCode;
   }

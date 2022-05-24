@@ -3,8 +3,6 @@ import Bree from 'bree';
 
 Bree.extend(require('@breejs/ts-worker'));
 
-Bree.extend(require('./plugins/fast'));
-
 const bree = new Bree({
   root: path.join(__dirname, 'jobs'),
   jobs: ['worker1'],

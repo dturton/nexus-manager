@@ -38,7 +38,7 @@
     "prepare-release": "run-s reset-hard test cov:check doc:html version doc:publish"
   },
   "engines": {
-    "node": ">=10"
+    "node": ">=14.16"
   },
   "devDependencies": {
     "@ava/typescript": "^1.1.1",
@@ -69,41 +69,6 @@
     "typedoc": "^0.22.15",
     "typescript": "^4.6.4"
   },
-  "files": [
-    "build/main",
-    "build/module",
-    "!**/*.spec.*",
-    "!**/*.json",
-    "CHANGELOG.md",
-    "LICENSE",
-    "README.md"
-  ],
-  "ava": {
-    "failFast": true,
-    "timeout": "60s",
-    "typescript": {
-      "rewritePaths": {
-        "src/": "build/main/"
-      }
-    },
-    "files": [
-      "!build/module/**"
-    ]
-  },
-  "config": {
-    "commitizen": {
-      "path": "cz-conventional-changelog"
-    }
-  },
-  "prettier": {
-    "singleQuote": true
-  },
-  "nyc": {
-    "extends": "@istanbuljs/nyc-config-typescript",
-    "exclude": [
-      "**/*.spec.js"
-    ]
-  },
   "dependencies": {
     "@breejs/ts-worker": "^1.1.1",
     "@deepkit/core": "^1.0.1-alpha.65",
@@ -123,6 +88,7 @@
     "bree": "^8.0.3",
     "config": "^3.3.7",
     "dotenv": "^16.0.1",
+    "p-retry": "^4.6.1",
     "pg": "^8.7.3",
     "rxjs": "^7.5.5"
   }
