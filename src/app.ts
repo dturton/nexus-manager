@@ -1,15 +1,14 @@
 import { App } from '@deepkit/app';
 import { FrameworkModule } from '@deepkit/framework';
-import { http } from '@deepkit/http';
-
-class MyPage {
-  @http.GET('/')
-  helloWorld() {
-    return 'Hello World!';
-  }
-}
+import Monitor from './Monitor';
+import IndexPage from './views/index';
 
 new App({
-  controllers: [MyPage],
-  imports: [new FrameworkModule()],
+  controllers: [IndexPage],
+  providers: [Monitor],
+  imports: [
+    new FrameworkModule({
+      debug: true,
+    }),
+  ],
 }).run();

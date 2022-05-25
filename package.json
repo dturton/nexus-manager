@@ -87,6 +87,7 @@
     "@deepkit/sql": "^1.0.1-alpha.71",
     "@deepkit/sqlite": "^1.0.1-alpha.71",
     "@deepkit/stopwatch": "^1.0.1-alpha.71",
+    "@deepkit/template": "^1.0.1-alpha.71",
     "@deepkit/type": "^1.0.1-alpha.71",
     "@deepkit/type-compiler": "^1.0.1-alpha.71",
     "@deepkit/workflow": "^1.0.1-alpha.71",
