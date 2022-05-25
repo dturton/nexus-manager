@@ -8,17 +8,17 @@ const bree = new Bree({
   jobs: ['worker1'],
   removeCompleted: true,
   outputWorkerMetadata: false,
-  defaultExtension: process.env.TS_NODE ? 'ts' : 'js',
+  defaultExtension: process.env.ENABLE_JS ? 'js' : 'ts',
   errorHandler: (error, workerMetadata) => {
     // workerMetadata will be populated with extended worker information only if
     // Bree instance is initialized with parameter `workerMetadata: true`
     if (workerMetadata.threadId) {
       console.info(
-        `There was an error while running a worker ${workerMetadata.name} with thread ID: ${workerMetadata.threadId}`
+        `There was an error while running a worker ${workerMetadata.name} with thread ID: ${workerMetadata.threadId}`,
       );
     } else {
       console.info(
-        `There was an error while running a worker ${workerMetadata.name}`
+        `There was an error while running a worker ${workerMetadata.name}`,
       );
     }
 

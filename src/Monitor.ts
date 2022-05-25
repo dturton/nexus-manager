@@ -7,6 +7,7 @@ config();
 import { JobExecution } from './entities';
 export default class Monitor extends Database {
   override name = 'default';
+
   constructor() {
     const adapter = new PostgresDatabaseAdapter({
       connectionString: process.env.DATABASE_URL,
@@ -16,15 +17,17 @@ export default class Monitor extends Database {
 
   async startExecution(name: string, input: any) {
     const newExecution = new JobExecution(name, input);
+    newExecution.startedAt = new Date();
     await this.persist(newExecution);
     return newExecution.id;
   }
 
   async endExecution(executionId: any, resultCode: any) {
+    const endedAt = new Date();
     const execution = await this.query(JobExecution)
       .filter({
         id: executionId,
       })
-      .patchOne({ resultCode });
+      .patchOne({ resultCode, endedAt });
   }
 }

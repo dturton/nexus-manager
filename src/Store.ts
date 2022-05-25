@@ -1,4 +1,5 @@
 import Bree from 'bree';
+import Monitor from './Monitor';
 
 class Store {
   private static instance: Store;
@@ -51,21 +52,21 @@ class Store {
   }
 
   getJobs() {
-    let monitor = require('./monitor');
+    let monitor = new Monitor();
 
     return this.bree.config.jobs.map(
       (job: { name: any; interval: any; path: any }) => {
-        let executions = monitor.getExecutions(job.name);
+        // let executions = monitor.getExecutions(job.name);
         const status = this.getJobStatus(job);
         return {
           name: job.name,
           status,
           interval: job.interval,
           path: job.path,
-          topExecutions: executions.slice(0, 3),
-          otherExecutions: executions.slice(3),
+          // topExecutions: executions.slice(0, 3),
+          // otherExecutions: executions.slice(3),
         };
-      }
+      },
     );
   }
 }

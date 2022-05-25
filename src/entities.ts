@@ -6,12 +6,13 @@ import {
   DatabaseField,
   AutoIncrement,
 } from '@deepkit/type';
-import { ResultCode } from './types';
 
 @entity.name('jobsexecutions')
 export class JobExecution {
   id: UUID & PrimaryKey = uuid();
   createdAt: Date = new Date();
+  startedAt?: Date;
+  endedAt?: Date;
   name: string;
   attemps: number = 0;
   correlationId?: UUID;
