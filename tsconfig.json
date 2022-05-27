@@ -10,7 +10,7 @@
     "jsx": "react-jsx",
     "jsxImportSource": "@deepkit/template"
   },
-  "experimentalDecorators": true,
+
   "reflection": true,
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules/**"],

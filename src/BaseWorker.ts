@@ -37,7 +37,14 @@ export default abstract class BaseWorker {
     this.logger.info(this.workerName, this.executionId);
 
     try {
-      this.resultCode = await pRetry(this.run, { retries: 5 });
+      this.resultCode = await pRetry(this.run, {
+        onFailedAttempt: error => {
+          console.log(
+            `Attempt ${error.attemptNumber} failed. There are ${error.retriesLeft} retries left.`,
+          );
+        },
+        retries: 5,
+      });
     } catch (error) {
       const e = error as Error;
       this.resultCode = 'ERROR';

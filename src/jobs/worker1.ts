@@ -3,13 +3,9 @@ import BaseWorker from '../BaseWorker';
 
 const { parentPort } = require('worker_threads');
 
-const delay = require('delay');
-const ms = require('ms');
-
 class Worker1 extends BaseWorker {
   public async run() {
     if (parentPort) parentPort.postMessage('started');
-    await delay(ms('5s'));
 
     return 'EXECUTION_SUCCESSFUL' as ResultCode;
   }

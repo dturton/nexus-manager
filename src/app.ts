@@ -8,7 +8,9 @@ new App({
   providers: [Monitor],
   imports: [
     new FrameworkModule({
+      publicDir: 'public',
       debug: true,
+      port: 3000,
     }),
   ],
 }).run();

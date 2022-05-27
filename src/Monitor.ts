@@ -19,7 +19,16 @@ export default class Monitor extends Database {
     const newExecution = new JobExecution(name, input);
     newExecution.startedAt = new Date();
     await this.persist(newExecution);
+    await this.incrementAttempts(newExecution.id);
     return newExecution.id;
+  }
+
+  async incrementAttempts(executionId: any) {
+    const execution = await this.query(JobExecution)
+      .filter({
+        id: executionId,
+      })
+      .patchOne({ $inc: { attemps: 1 } });
   }
 
   async endExecution(executionId: any, resultCode: any) {

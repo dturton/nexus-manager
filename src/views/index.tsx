@@ -8,10 +8,7 @@ export default class IndexPage {
       <html lang="en">
         <head>
           <title>My page</title>
-          <link
-            rel="stylesheet"
-            href="https://unpkg.com/@shopify/polaris@9.8.0/build/esm/styles.css"
-          />
+          <link rel="stylesheet" href="main.css" />
           <meta name="viewport" content="initial-scale=1, width=device-width" />
           <link
             rel="stylesheet"
