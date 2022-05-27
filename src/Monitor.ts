@@ -9,6 +9,7 @@ export default class Monitor extends Database {
   override name = 'default';
 
   constructor() {
+    const connectionString = process.env.DATABASE_URL;
     const adapter = new PostgresDatabaseAdapter({
       connectionString: process.env.DATABASE_URL,
     });

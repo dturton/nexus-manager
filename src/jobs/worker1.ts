@@ -1,10 +1,11 @@
-import { ResultCode } from 'src/types';
 import BaseWorker from '../BaseWorker';
+import { ResultCode } from '../types';
 
 const { parentPort } = require('worker_threads');
 
 class Worker1 extends BaseWorker {
   public async run() {
+    console.log(this.executionId);
     if (parentPort) parentPort.postMessage('started');
 
     return 'EXECUTION_SUCCESSFUL' as ResultCode;

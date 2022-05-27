@@ -6,7 +6,7 @@ Bree.extend(require('@breejs/ts-worker'));
 const bree = new Bree({
   root: path.join(__dirname, 'jobs'),
   jobs: ['worker1'],
-  removeCompleted: true,
+  removeCompleted: false,
   outputWorkerMetadata: false,
   defaultExtension: process.env.ENABLE_JS ? 'js' : 'ts',
   errorHandler: (error, workerMetadata) => {

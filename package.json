@@ -1,9 +1,7 @@
 {
-  "name": "node-durable-task",
+  "name": "durable-task",
   "version": "1.0.0",
   "description": "d",
-  "typings": "build/main/index.d.ts",
-  "module": "build/module/index.js",
   "repository": "https://github.com/dturton/node-durable-task",
   "license": "MIT",
   "keywords": [],
@@ -18,6 +16,7 @@
   "devDependencies": {
     "@types/node": "^17.0.35",
     "@types/pg": "^8.6.5",
+    "@types/safe-timers": "^1.1.0",
     "@typescript-eslint/eslint-plugin": "^4.0.1",
     "@typescript-eslint/parser": "^4.0.1",
     "autoprefixer": "^10.4.7",

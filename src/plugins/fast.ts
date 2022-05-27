@@ -11,7 +11,7 @@ class PostgressDatabaseConnection extends Database {
     const adapter = new PostgresDatabaseAdapter({
       connectionString: process.env.DATABASE_URL,
     });
-    super(adapter, [Job]);
+    super(adapter, [JobExecution]);
   }
 }
 
@@ -22,7 +22,7 @@ function plugin(
     prototype: {
       init: () => void;
     };
-  }
+  },
 ) {
   opts = { ...opts };
 
