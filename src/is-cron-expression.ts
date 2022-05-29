@@ -33,4 +33,4 @@ const isCronExpression = (expression: any) => {
   return cronResult.isValid();
 };
 
-module.exports = isCronExpression;
+export default isCronExpression;
