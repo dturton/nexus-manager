@@ -10,7 +10,9 @@ import type { queue, done } from 'fastq';
 import { AddJobArgs, Task } from './types';
 import Bree from 'bree';
 
-const debug = require('debug')('nexus:job-manager');
+Bree.extend(require('@breejs/ts-worker'));
+
+const debug = require('debug')('nexus');
 
 const queueWorker = async (task: Task, cb: done) => {
   try {
@@ -40,8 +42,9 @@ class JobManager {
     this.bree = new Bree({
       root: false, // set this to `false` to prevent requiring a root directory of jobs
       hasSeconds: true, // precision is needed to avoid task overlaps after immediate execution
-      outputWorkerMetadata: true,
-      logger: true,
+      outputWorkerMetadata: false, //TODO: double check settings
+      //TODO: logger: true, add logger
+      defaultExtension: process.env.ENABLE_JS ? 'js' : 'ts',
       errorHandler: (error, workerMetadata) => {
         if (workerMetadata.threadId) {
           console.info(
@@ -56,7 +59,7 @@ class JobManager {
         console.error(error);
       },
       workerMessageHandler: (message, workerMetadata) => {
-        console.info(message);
+        console.info(`message from worker ${message}`);
       },
     });
   }
@@ -124,7 +127,7 @@ class JobManager {
         try {
           if (typeof job === 'function') {
             await job(data);
-          } else {
+          } else if (typeof job === 'string') {
             await require(job)(data);
           }
         } catch (err) {

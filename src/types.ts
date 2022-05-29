@@ -10,7 +10,7 @@ export type Task = (data?: unknown) => Promise<string>;
 export type AddJobArgs = {
   name?: string;
   at?: string | Date;
-  job: Task;
+  job?: Task | string;
   data?: any;
-  offloaded: boolean;
+  offloaded?: boolean;
 };
