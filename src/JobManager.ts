@@ -10,6 +10,8 @@ import type { queue, done } from 'fastq';
 import { AddJobArgs, Task } from './types';
 import Bree from 'bree';
 
+const debug = require('debug')('nexus:job-manager');
+
 const queueWorker = async (task: Task, cb: done) => {
   try {
     let result = await task();
