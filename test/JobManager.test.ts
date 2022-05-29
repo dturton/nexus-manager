@@ -105,6 +105,47 @@ describe('Job Manager', function () {
 
           clock.uninstall();
         });
+
+        it('schedules a job using date format', async function () {
+          const jobManager = new JobManager();
+          const timeInTenSeconds = new Date(Date.now() + 10);
+          const jobPath = path.resolve(__dirname, './jobs/simple.ts');
+
+          const clock = FakeTimers.install({ now: Date.now() });
+          jobManager.addJob({
+            at: timeInTenSeconds,
+            job: jobPath,
+            name: 'job-in-ten',
+          });
+
+          expect(jobManager.bree.timeouts.get('job-in-ten')).toBeInstanceOf(
+            Object,
+          );
+
+          // allow to run the job and start the worker
+          await clock.nextAsync();
+
+          expect(jobManager.bree.workers.get('job-in-ten')).toBeDefined();
+
+          const promise = new Promise<void>((resolve, reject) => {
+            jobManager.bree.workers.get('job-in-ten')!.on('error', reject);
+            jobManager.bree.workers
+              .get('job-in-ten')!
+              .on('message', message => {
+                expect(message).toEqual('done');
+                resolve();
+              });
+          });
+
+          // allow job to finish execution and exit
+          clock.next();
+
+          await promise;
+
+          expect(jobManager.bree.timeouts.get('job-in-ten')).toBeUndefined();
+
+          clock.uninstall();
+        });
       });
     });
   });
