@@ -39,4 +39,4 @@ const assemble = (at: Date, job: any, data: any, name: any) => {
   return breeJob;
 };
 
-module.exports = assemble;
+export default assemble;

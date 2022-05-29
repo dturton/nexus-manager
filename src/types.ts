@@ -5,7 +5,7 @@ export type ResultCode =
   | 'ERROR'
   | 'EXECUTION_CANCELED';
 
-export type Task = () => Promise<string>;
+export type Task = (data?: unknown) => Promise<string>;
 
 export type AddJobArgs = {
   name?: string;

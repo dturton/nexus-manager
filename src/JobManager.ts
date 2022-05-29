@@ -11,7 +11,7 @@ import type { queue, done } from 'fastq';
 import { AddJobArgs, Task } from './types';
 import Bree from 'bree/types';
 
-const worker = async (task: Task, cb: done) => {
+const queueWorker = async (task: Task, cb: done) => {
   try {
     let result = await task();
     cb(null, result);
@@ -34,7 +34,7 @@ class JobManager {
   bree: Bree;
 
   constructor({ errorHandler, workerMessageHandler }) {
-    this.queue = fastq(this, worker, 1);
+    this.queue = fastq(this, queueWorker, 1);
 
     this.bree = new Bree({
       root: false, // set this to `false` to prevent requiring a root directory of jobs
@@ -160,4 +160,4 @@ class JobManager {
   }
 }
 
-module.exports = JobManager;
+export default JobManager;
