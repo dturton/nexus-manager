@@ -7,7 +7,12 @@ import isCronExpression from './is-cron-expression';
  * @param {Object} [data] - data to be passed into the job
  * @param {String} [name] - job name
  */
-const assembleBreeJob = (at: Date | string, job: any, data: any, name: any) => {
+const assembleBreeJob = (
+  at: Date | string | undefined,
+  job: any,
+  data: any,
+  name: any,
+) => {
   const breeJob = {
     name: name,
     // NOTE: both function and path syntaxes work with 'path' parameter

@@ -8,7 +8,7 @@ import assembleBreeJob from './assemble-bree-job';
 import fastq from 'fastq';
 import type { queue, done } from 'fastq';
 import { AddJobArgs, Task } from './types';
-import Bree from 'bree/types';
+import Bree from 'bree';
 
 const queueWorker = async (task: Task, cb: done) => {
   try {
@@ -24,12 +24,12 @@ const handler = (error: any, result: any) => {
     // TODO: this handler should not be throwing as this blocks the queue
     // throw error;
   }
-  // Can potentially standardise the result here
+  // Can potentially standardize the result here
   return result;
 };
 
 class JobManager {
-  queue: fastq.queue;
+  queue: queue;
   bree: Bree;
 
   constructor() {
@@ -127,7 +127,7 @@ class JobManager {
           }
         } catch (err) {
           // NOTE: each job should be written in a safe way and handle all errors internally
-          //       if the error is caught here jobs implementaton should be changed
+          //       if the error is caught here jobs implementation should be changed
           logger.error(
             new UnhandledJobError({
               context: typeof job === 'function' ? 'function' : job,
@@ -146,7 +146,7 @@ class JobManager {
    * It's NOT yet possible to remove "inline" jobs (will be possible when scheduling is added https://github.com/breejs/bree/issues/68).
    * The method will throw an Error if job with provided name does not exist.
    *
-   * NOTE: current implementation does not guarante running job termination
+   * NOTE: current implementation does not guarantee running job termination
    *       for details see https://github.com/breejs/bree/pull/64
    *
    * @param {String} name - job name
