@@ -59,6 +59,7 @@
     "@ladjs/graceful": "^2.0.1",
     "bree": "^8.0.3",
     "config": "^3.3.7",
+    "cron-validate": "^1.4.3",
     "dotenv": "^16.0.1",
     "p-retry": "^4.6.1",
     "pg": "^8.7.3",
