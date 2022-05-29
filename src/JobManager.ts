@@ -63,12 +63,12 @@ class JobManager {
    * By default schedules an "offloaded" job. If `offloaded: true` parameter is set,
    * puts an "inline" immediate job into the queue.
    *
-   * @param {Object} GhostJob - job options
-   * @prop {Function | String} GhostJob.job - function or path to a module defining a job
-   * @prop {String} [GhostJob.name] - unique job name, if not provided takes function name or job script filename
-   * @prop {String | Date} [GhostJob.at] - Date, cron or human readable schedule format. Manage will do immediate execution if not specified. Not supported for "inline" jobs
-   * @prop {Object} [GhostJob.data] - data to be passed into the job
-   * @prop {Boolean} [GhostJob.offloaded] - creates an "offloaded" job running in a worker thread by default. If set to "false" runs an "inline" job on the same event loop
+   * @param {Object} job - job options
+   * @prop {Function | String} job.job - function or path to a module defining a job
+   * @prop {String} [job.name] - unique job name, if not provided takes function name or job script filename
+   * @prop {String | Date} [job.at] - Date, cron or human readable schedule format. Manage will do immediate execution if not specified. Not supported for "inline" jobs
+   * @prop {Object} [job.data] - data to be passed into the job
+   * @prop {Boolean} [job.offloaded] - creates an "offloaded" job running in a worker thread by default. If set to "false" runs an "inline" job on the same event loop
    */
   addJob({ name, at, job, data, offloaded = true }: AddJobArgs) {
     if (offloaded) {
