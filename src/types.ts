@@ -4,3 +4,13 @@ export type ResultCode =
   | 'EXECUTION_STARTED'
   | 'ERROR'
   | 'EXECUTION_CANCELED';
+
+export type Task = () => Promise<string>;
+
+export type AddJobArgs = {
+  name?: string;
+  at: string | Date;
+  job: Task;
+  data?: any;
+  offloaded: boolean;
+};
