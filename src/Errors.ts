@@ -16,7 +16,7 @@ export type Options = {
   redirect: null;
   message: string;
   hideStack: boolean;
-  err: string | Error;
+  err: string | Error | string[];
 };
 
 class GhostError extends Error {
@@ -91,6 +91,8 @@ class GhostError extends Error {
           return;
         }
 
+        // @ts-ignore
+        // TODO:  fix tsingore
         this[property] = options.err[property] || this[property];
       });
     }

@@ -32,6 +32,7 @@
     "typescript": "^4.7.2"
   },
   "dependencies": {
+    "@breejs/later": "^4.1.0",
     "@breejs/ts-worker": "^1.1.1",
     "@deepkit/app": "^1.0.1-alpha.71",
     "@deepkit/broker": "^1.0.1-alpha.71",
@@ -57,11 +58,13 @@
     "@headlessui/react": "^1.6.3",
     "@heroicons/react": "^1.0.6",
     "@ladjs/graceful": "^2.0.1",
+    "@tryghost/errors": "^1.2.13",
     "bree": "^8.0.3",
     "config": "^3.3.7",
     "cron-validate": "^1.4.3",
     "dotenv": "^16.0.1",
     "p-retry": "^4.6.1",
+    "p-wait-for": "^4.1.0",
     "pg": "^8.7.3",
     "rxjs": "^7.5.5",
     "ts-node-dev": "^1.1.8"

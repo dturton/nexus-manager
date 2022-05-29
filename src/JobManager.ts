@@ -1,11 +1,10 @@
-const path = require('path');
-const later = require('@breejs/later');
-const pWaitFor = require('p-wait-for');
-const { UnhandledJobError, IncorrectUsageError } = require('@tryghost/errors');
-const logging = require('@tryghost/logging');
-const isCronExpression = require('./is-cron-expression');
-const assembleBreeJob = require('./assemble-bree-job');
-
+import path from 'path';
+import later from '@breejs/later';
+import pWaitFor from 'p-wait-for';
+import { UnhandledJobError, IncorrectUsageError } from '@tryghost/errors';
+import logger from './logger';
+import isCronExpression from './is-cron-expression';
+import assembleBreeJob from './assemble-bree-job';
 import fastq from 'fastq';
 import type { queue, done } from 'fastq';
 import { AddJobArgs, Task } from './types';
@@ -33,16 +32,30 @@ class JobManager {
   queue: fastq.queue;
   bree: Bree;
 
-  constructor({ errorHandler, workerMessageHandler }) {
+  constructor() {
     this.queue = fastq(this, queueWorker, 1);
 
     this.bree = new Bree({
       root: false, // set this to `false` to prevent requiring a root directory of jobs
       hasSeconds: true, // precision is needed to avoid task overlaps after immediate execution
       outputWorkerMetadata: true,
-      logger: logging,
-      errorHandler,
-      workerMessageHandler,
+      logger: true,
+      errorHandler: (error, workerMetadata) => {
+        if (workerMetadata.threadId) {
+          console.info(
+            `There was an error while running a worker ${workerMetadata.name} with thread ID: ${workerMetadata.threadId}`,
+          );
+        } else {
+          console.info(
+            `There was an error while running a worker ${workerMetadata.name}`,
+          );
+        }
+
+        console.error(error);
+      },
+      workerMessageHandler: (message, workerMetadata) => {
+        console.info(message);
+      },
     });
   }
 
@@ -59,7 +72,7 @@ class JobManager {
    */
   addJob({ name, at, job, data, offloaded = true }: AddJobArgs) {
     if (offloaded) {
-      logging.info('Adding offloaded job to the queue');
+      logger.info('Adding offloaded job to the queue');
       let schedule;
 
       if (!name) {
@@ -88,22 +101,22 @@ class JobManager {
           });
         }
 
-        logging.info(
+        logger.info(
           `Scheduling job ${name} at ${at}. Next run on: ${later
             .schedule(schedule)
             .next()}`,
         );
       } else if (at !== undefined) {
-        logging.info(`Scheduling job ${name} at ${at}`);
+        logger.info(`Scheduling job ${name} at ${at}`);
       } else {
-        logging.info(`Scheduling job ${name} to run immediately`);
+        logger.info(`Scheduling job ${name} to run immediately`);
       }
 
       const breeJob = assembleBreeJob(at, job, data, name);
       this.bree.add(breeJob);
       return this.bree.start(name);
     } else {
-      logging.info('Adding one off inline job to the queue');
+      logger.info('Adding one off inline job to the queue');
 
       this.queue.push(async () => {
         try {
@@ -115,7 +128,7 @@ class JobManager {
         } catch (err) {
           // NOTE: each job should be written in a safe way and handle all errors internally
           //       if the error is caught here jobs implementaton should be changed
-          logging.error(
+          logger.error(
             new UnhandledJobError({
               context: typeof job === 'function' ? 'function' : job,
               err,
@@ -152,11 +165,11 @@ class JobManager {
       return;
     }
 
-    logging.warn('Waiting for busy job queue');
+    logger.error('Waiting for busy job queue');
 
     await pWaitFor(() => this.queue.idle() === true, options);
 
-    logging.warn('Job queue finished');
+    logger.error('Job queue finished');
   }
 }
 
