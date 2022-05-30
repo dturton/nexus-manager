@@ -14,7 +14,7 @@ export class JobExecution {
   startedAt?: Date;
   endedAt?: Date;
   name: string;
-  attemps: number = 0;
+  attempts: number = 0;
   correlationId?: UUID;
   input: DatabaseField<{ type: 'jsob' }> = {};
   result: DatabaseField<{ type: 'jsob' }> = {};

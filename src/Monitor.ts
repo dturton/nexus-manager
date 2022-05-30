@@ -16,12 +16,19 @@ export default class Monitor extends Database {
     super(adapter, [JobExecution]);
   }
 
-  async startExecution(name: string, input: any) {
+  async createExecution(name: string, input: any) {
     const newExecution = new JobExecution(name, input);
-    newExecution.startedAt = new Date();
     await this.persist(newExecution);
     await this.incrementAttempts(newExecution.id);
     return newExecution.id;
+  }
+
+  async startExecution(executionId: any) {
+    const execution = await this.query(JobExecution)
+      .filter({
+        id: executionId,
+      })
+      .patchOne({ startedAt: new Date(), resultCode: 'EXECUTION_STARTED' });
   }
 
   async incrementAttempts(executionId: any) {
@@ -29,7 +36,7 @@ export default class Monitor extends Database {
       .filter({
         id: executionId,
       })
-      .patchOne({ $inc: { attemps: 1 } });
+      .patchOne({ $inc: { attempts: 1 } });
   }
 
   async endExecution(executionId: any, resultCode: any) {
