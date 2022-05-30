@@ -62,7 +62,7 @@ class JobManager {
       },
       workerMessageHandler: (message, workerMetadata) => {
         //TODO: handle message
-        console.info(`message: ${JSON.stringify(message, null, 2)}`);
+        //console.info(`message: ${JSON.stringify(message, null, 2)}`);
       },
     });
   }

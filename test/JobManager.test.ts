@@ -116,7 +116,6 @@ describe('Job Manager', function () {
             name: 'job-in-ten',
           });
 
-          // allow to run the job and start the worker
           await clock.nextAsync();
 
           expect(jobManager.bree.workers.get('job-in-ten')).toBeDefined();
@@ -132,8 +131,10 @@ describe('Job Manager', function () {
               });
           });
 
-          await promise;
+          // allow job to finish execution and exit
+          clock.next();
 
+          await promise;
           expect(jobManager.bree.timeouts.get('job-in-ten')).toBeUndefined();
 
           clock.uninstall();

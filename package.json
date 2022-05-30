@@ -63,6 +63,7 @@
     "@deepkit/type": "^1.0.1-alpha.71",
     "@deepkit/type-compiler": "^1.0.1-alpha.71",
     "@deepkit/workflow": "^1.0.1-alpha.71",
+    "@feathersjs/hooks": "^0.7.4",
     "@headlessui/react": "^1.6.3",
     "@heroicons/react": "^1.0.6",
     "@ladjs/graceful": "^2.0.1",

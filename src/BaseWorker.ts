@@ -5,6 +5,21 @@ import { parentPort } from 'worker_threads';
 import logger from './logger';
 import pRetry, { AbortError } from 'p-retry';
 
+import { hooks, HookContext, NextFunction } from '@feathersjs/hooks';
+import console from 'console';
+
+const logRuntime = async (context: HookContext, next: NextFunction) => {
+  const start = new Date().getTime();
+  console.log('start', start);
+  await next();
+
+  const end = new Date().getTime();
+  console.log(
+    `Function '${context.method || '[no name]'}' returned '${
+      context.result
+    }' after ${end - start}ms`,
+  );
+};
 export default abstract class BaseWorker {
   filePath: string;
   executionId: any;
@@ -14,6 +29,8 @@ export default abstract class BaseWorker {
   workerName: any;
 
   constructor(filePath: string) {
+    // The `hooks` utility wraps `logRuntime` around `sayHi`.
+
     this.filePath = filePath;
     this.logger = logger;
     this.workerName = path.basename(filePath, path.extname(filePath));
@@ -32,19 +49,21 @@ export default abstract class BaseWorker {
     return 'CREATED';
   }
 
+  // this.run, {
+  //     onFailedAttempt: (error: { attemptNumber: any; retriesLeft: any }) => {
+  //       console.log(
+  //         `Attempt ${error.attemptNumber} failed. There are ${error.retriesLeft} retries left.`,
+  //       );
+  //     },
+  //     retries: 5,
+  //   }
+
   async start() {
-    console.log(`this.executionId: ${this.executionId}`);
     this.logger.info(this.workerName, this.executionId);
 
     try {
-      this.resultCode = await pRetry(this.run, {
-        onFailedAttempt: error => {
-          console.log(
-            `Attempt ${error.attemptNumber} failed. There are ${error.retriesLeft} retries left.`,
-          );
-        },
-        retries: 5,
-      });
+      const info = await pRetry(hooks(await this.run, [logRuntime]));
+      console.log(info);
       await this.done();
     } catch (error) {
       const e = error as Error;
