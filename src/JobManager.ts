@@ -62,6 +62,7 @@ class JobManager {
       },
       workerMessageHandler: (message, workerMetadata) => {
         //TODO: handle message
+        console.info(`message: ${JSON.stringify(message, null, 2)}`);
       },
     });
   }
@@ -83,8 +84,7 @@ class JobManager {
     job,
     data = {},
     offloaded = true,
-  }: AddJobArgs): Promise<string> {
-    const executionId = await this.monitor.createExecution(name!, data);
+  }: AddJobArgs): Promise<unknown> {
     if (offloaded) {
       logger.info('Adding offloaded job to the queue');
       let schedule;
@@ -128,26 +128,17 @@ class JobManager {
 
       const breeJob = assembleBreeJob(at, job, data, name);
       this.bree.add(breeJob);
-      this.bree.start(name);
-      return executionId;
+
+      return this.bree.start(name);
     } else {
       logger.info('Adding one off inline job to the queue');
 
       this.queue.push(async () => {
-        await this.monitor.startExecution(executionId);
         try {
           if (typeof job === 'function') {
             await job(data);
-            await this.monitor.endExecution(
-              executionId,
-              'EXECUTION_SUCCESSFUL',
-            );
           } else if (typeof job === 'string') {
             await require(job)(data);
-            await this.monitor.endExecution(
-              executionId,
-              'EXECUTION_SUCCESSFUL',
-            );
           }
         } catch (err) {
           // NOTE: each job should be written in a safe way and handle all errors internally
@@ -159,12 +150,9 @@ class JobManager {
             }),
           );
 
-          await this.monitor.endExecution(executionId, 'EXECUTION_FAILED');
-
           throw err;
         }
       }, handler);
-      return executionId;
     }
   }
 

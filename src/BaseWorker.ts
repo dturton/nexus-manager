@@ -33,7 +33,6 @@ export default abstract class BaseWorker {
   }
 
   async start() {
-    await this.monitor.startExecution(this.workerName);
     this.logger.info(this.workerName, this.executionId);
 
     try {
@@ -45,20 +44,19 @@ export default abstract class BaseWorker {
         },
         retries: 5,
       });
+      await this.done();
     } catch (error) {
       const e = error as Error;
       this.resultCode = 'ERROR';
       this.logger.error(e.message + e.stack);
+      await this.done();
     }
-    await this.done();
   }
 
   async done() {
     if (this.resultCode == undefined) {
       this.resultCode = 'EXECUTION_SUCCESSFUL';
     }
-
-    await this.monitor.endExecution(this.executionId, this.resultCode);
 
     if (parentPort) {
       parentPort.postMessage('done');

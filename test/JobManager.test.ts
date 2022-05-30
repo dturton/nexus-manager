@@ -60,7 +60,7 @@ describe('Job Manager', function () {
           const jobManager = new JobManager();
           const clock = FakeTimers.install({ now: Date.now() });
 
-          const jobPath = path.resolve(__dirname, './jobs/simple.ts');
+          const jobPath = path.resolve(__dirname, './jobs/simple.v2.ts');
           await jobManager.addJob({
             job: jobPath,
             name: 'job-now',
@@ -76,8 +76,9 @@ describe('Job Manager', function () {
           const promise = new Promise<void>((resolve, reject) => {
             jobManager.bree.workers.get('job-now')!.on('error', reject);
             jobManager.bree.workers.get('job-now')!.on('message', message => {
-              expect(message).toEqual('done');
-              resolve();
+              if (message === 'done') {
+                resolve();
+              }
             });
           });
 
@@ -111,8 +112,9 @@ describe('Job Manager', function () {
             jobManager.bree.workers
               .get('job-in-ten')!
               .on('message', message => {
-                expect(message).toEqual('done');
-                resolve();
+                if (message === 'done') {
+                  resolve();
+                }
               });
           });
 
