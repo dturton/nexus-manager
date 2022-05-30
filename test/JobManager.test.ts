@@ -1,4 +1,3 @@
-import exp from 'constants';
 import delay from 'delay';
 import sinon from 'sinon';
 import FakeTimers from '@sinonjs/fake-timers';
@@ -6,7 +5,7 @@ import JobManager from '../src/JobManager';
 import path from 'path';
 
 const sandbox = sinon.createSandbox();
-jest.setTimeout(10000);
+jest.setTimeout(20000);
 
 describe('Job Manager', function () {
   afterEach(function () {
@@ -26,7 +25,7 @@ describe('Job Manager', function () {
         const jobManager = new JobManager();
 
         await jobManager.addJob({
-          name: 'test',
+          name: 'inline-job-queue',
           job: spy,
           data: { info: 'test' },
           offloaded: false,
@@ -34,8 +33,7 @@ describe('Job Manager', function () {
 
         expect(jobManager.queue.idle()).toBe(false);
 
-        // give time to execute the job
-        await delay(1);
+        await delay(2000);
 
         expect(jobManager.queue.idle()).toBe(true);
         expect(spy.called).toBe(true);
@@ -93,7 +91,7 @@ describe('Job Manager', function () {
         it('schedules a job using date format', async function () {
           const jobManager = new JobManager();
           const timeInTenSeconds = new Date(Date.now() + 10);
-          const jobPath = path.resolve(__dirname, './jobs/simple.ts');
+          const jobPath = path.resolve(__dirname, './jobs/simple.v2.ts');
 
           const clock = FakeTimers.install({ now: Date.now() });
 
@@ -118,7 +116,6 @@ describe('Job Manager', function () {
               });
           });
 
-          // allow job to finish execution and exit
           clock.next();
 
           await promise;
