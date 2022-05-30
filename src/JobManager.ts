@@ -61,7 +61,7 @@ class JobManager {
         console.error(error);
       },
       workerMessageHandler: (message, workerMetadata) => {
-        console.info(`message from worker ${message}`);
+        //TODO: handle message
       },
     });
   }
@@ -77,8 +77,14 @@ class JobManager {
    * @prop {Object} [job.data] - data to be passed into the job
    * @prop {Boolean} [job.offloaded] - creates an "offloaded" job running in a worker thread by default. If set to "false" runs an "inline" job on the same event loop
    */
-  async addJob({ name, at, job, data = {}, offloaded = true }: AddJobArgs) {
-    await this.monitor.createExecution(name!, data);
+  async addJob({
+    name,
+    at,
+    job,
+    data = {},
+    offloaded = true,
+  }: AddJobArgs): Promise<string> {
+    const executionId = await this.monitor.createExecution(name!, data);
     if (offloaded) {
       logger.info('Adding offloaded job to the queue');
       let schedule;
@@ -122,16 +128,26 @@ class JobManager {
 
       const breeJob = assembleBreeJob(at, job, data, name);
       this.bree.add(breeJob);
-      return this.bree.start(name);
+      this.bree.start(name);
+      return executionId;
     } else {
       logger.info('Adding one off inline job to the queue');
 
       this.queue.push(async () => {
+        await this.monitor.startExecution(executionId);
         try {
           if (typeof job === 'function') {
             await job(data);
+            await this.monitor.endExecution(
+              executionId,
+              'EXECUTION_SUCCESSFUL',
+            );
           } else if (typeof job === 'string') {
             await require(job)(data);
+            await this.monitor.endExecution(
+              executionId,
+              'EXECUTION_SUCCESSFUL',
+            );
           }
         } catch (err) {
           // NOTE: each job should be written in a safe way and handle all errors internally
@@ -143,9 +159,12 @@ class JobManager {
             }),
           );
 
+          await this.monitor.endExecution(executionId, 'EXECUTION_FAILED');
+
           throw err;
         }
       }, handler);
+      return executionId;
     }
   }
 

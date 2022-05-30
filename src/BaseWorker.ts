@@ -1,7 +1,7 @@
-let path = require('path');
+import path from 'path';
 import Monitor from './Monitor';
 import { ResultCode } from './types';
-const { parentPort } = require('worker_threads');
+import { parentPort } from 'worker_threads';
 import logger from './logger';
 import pRetry, { AbortError } from 'p-retry';
 
@@ -33,7 +33,7 @@ export default abstract class BaseWorker {
   }
 
   async start() {
-    this.executionId = await this.monitor.startExecution(this.workerName, {});
+    await this.monitor.startExecution(this.workerName);
     this.logger.info(this.workerName, this.executionId);
 
     try {
@@ -72,7 +72,7 @@ export default abstract class BaseWorker {
   async cancel() {
     await this.onCancel();
     this.logger.info('Work cancelled!');
-    this.monitor.endExecution(this.executionId, 'CANCELLED');
+    this.monitor.endExecution(this.executionId, 'EXECUTION_CANCELED');
     if (parentPort) parentPort.postMessage('cancelled');
     else process.exit(0);
   }
