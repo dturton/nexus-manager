@@ -106,7 +106,7 @@ describe('Job Manager', function () {
         it('schedules a job using date format', async function () {
           const jobManager = new JobManager();
           const timeInTenSeconds = new Date(Date.now() + 10);
-          const jobPath = path.resolve(__dirname, './jobs/simple.ts');
+          const jobPath = path.resolve(__dirname, './jobs/simple.v2.ts');
 
           const clock = FakeTimers.install({ now: Date.now() });
 
