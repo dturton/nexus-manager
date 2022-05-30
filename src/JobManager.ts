@@ -9,6 +9,7 @@ import fastq from 'fastq';
 import type { queue, done } from 'fastq';
 import { AddJobArgs, Task } from './types';
 import Bree from 'bree';
+import Monitor from './Monitor';
 
 Bree.extend(require('@breejs/ts-worker'));
 
@@ -35,6 +36,7 @@ const handler = (error: any, result: any) => {
 class JobManager {
   queue: queue;
   bree: Bree;
+  monitor: Monitor = new Monitor();
 
   constructor() {
     this.queue = fastq(this, queueWorker, 1);
@@ -75,7 +77,8 @@ class JobManager {
    * @prop {Object} [job.data] - data to be passed into the job
    * @prop {Boolean} [job.offloaded] - creates an "offloaded" job running in a worker thread by default. If set to "false" runs an "inline" job on the same event loop
    */
-  addJob({ name, at, job, data, offloaded = true }: AddJobArgs) {
+  async addJob({ name, at, job, data = {}, offloaded = true }: AddJobArgs) {
+    await this.monitor.createExecution(name!, data);
     if (offloaded) {
       logger.info('Adding offloaded job to the queue');
       let schedule;

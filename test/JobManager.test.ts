@@ -25,11 +25,13 @@ describe('Job Manager', function () {
         const spy = sinon.spy();
         const jobManager = new JobManager();
 
-        jobManager.addJob({
+        await jobManager.addJob({
+          name: 'test',
           job: spy,
-          data: 'test data',
+          data: { info: 'test' },
           offloaded: false,
         });
+
         expect(jobManager.queue.idle()).toBe(false);
 
         // give time to execute the job
@@ -38,15 +40,15 @@ describe('Job Manager', function () {
         expect(jobManager.queue.idle()).toBe(true);
         expect(spy.called).toBe(true);
 
-        expect(spy.args[0][0]).toEqual('test data');
+        expect(spy.args[0][0]).toEqual({ info: 'test' });
       });
 
       describe('Offloaded jobs', function () {
-        it('fails to schedule for invalid scheduling expression', function () {
+        it('fails to schedule for invalid scheduling expression', async function () {
           const jobManager = new JobManager();
 
           try {
-            jobManager.addJob({
+            await jobManager.addJob({
               at: 'invalid expression',
               name: 'jobName',
             });
@@ -56,30 +58,12 @@ describe('Job Manager', function () {
           }
         });
 
-        it('fails to schedule for no job name', function () {
-          const jobManager = new JobManager();
-
-          try {
-            jobManager.addJob({
-              at: 'invalid expression',
-              job: async () => {
-                return 'test';
-              },
-            });
-          } catch (err) {
-            const error = err as Error;
-            expect(error.message).toEqual(
-              'Name parameter should be present if job is a function',
-            );
-          }
-        });
-
         it('schedules a job to run immediately', async function () {
           const jobManager = new JobManager();
           const clock = FakeTimers.install({ now: Date.now() });
 
           const jobPath = path.resolve(__dirname, './jobs/simple.ts');
-          jobManager.addJob({
+          await jobManager.addJob({
             job: jobPath,
             name: 'job-now',
           });
@@ -112,15 +96,12 @@ describe('Job Manager', function () {
           const jobPath = path.resolve(__dirname, './jobs/simple.ts');
 
           const clock = FakeTimers.install({ now: Date.now() });
-          jobManager.addJob({
+
+          await jobManager.addJob({
             at: timeInTenSeconds,
             job: jobPath,
             name: 'job-in-ten',
           });
-
-          expect(jobManager.bree.timeouts.get('job-in-ten')).toBeInstanceOf(
-            Object,
-          );
 
           // allow to run the job and start the worker
           await clock.nextAsync();
