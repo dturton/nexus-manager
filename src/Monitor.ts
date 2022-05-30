@@ -5,6 +5,7 @@ import { config } from 'dotenv';
 config();
 
 import { JobExecution } from './entities';
+import { ResultCode } from './types';
 export default class Monitor extends Database {
   override name = 'default';
 
@@ -39,7 +40,7 @@ export default class Monitor extends Database {
       .patchOne({ $inc: { attempts: 1 } });
   }
 
-  async endExecution(executionId: any, resultCode: any) {
+  async endExecution(executionId: any, resultCode: ResultCode) {
     const endedAt = new Date();
     const execution = await this.query(JobExecution)
       .filter({

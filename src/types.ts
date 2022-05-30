@@ -1,6 +1,7 @@
 export type ResultCode =
   | 'CREATED'
   | 'EXECUTION_SUCCESSFUL'
+  | 'EXECUTION_FAILED'
   | 'EXECUTION_STARTED'
   | 'ERROR'
   | 'EXECUTION_CANCELED';
