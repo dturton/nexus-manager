@@ -73,6 +73,37 @@ class JobManager {
    *
    * @param {Object} job - job options
    * @prop {Function | String} job.job - function or path to a module defining a job
+   * @prop {Object} [job.data] - data to be passed into the job
+   */
+  async runNow({ job, data = {} }: AddJobArgs) {
+    logger.info('Adding one off inline job to the queue');
+
+    try {
+      if (typeof job === 'function') {
+        return await job(data);
+      } else if (typeof job === 'string') {
+        return await require(job)(data);
+      }
+    } catch (err) {
+      // NOTE: each job should be written in a safe way and handle all errors internally
+      //       if the error is caught here jobs implementation should be changed
+      logger.error(
+        new UnhandledJobError({
+          context: typeof job === 'function' ? 'function' : job,
+          err,
+        }),
+      );
+
+      throw err;
+    }
+  }
+
+  /**
+   * By default schedules an "offloaded" job. If `offloaded: true` parameter is set,
+   * puts an "inline" immediate job into the queue.
+   *
+   * @param {Object} job - job options
+   * @prop {Function | String} job.job - function or path to a module defining a job
    * @prop {String} [job.name] - unique job name, if not provided takes function name or job script filename
    * @prop {String | Date} [job.at] - Date, cron or human readable schedule format. Manage will do immediate execution if not specified. Not supported for "inline" jobs
    * @prop {Object} [job.data] - data to be passed into the job
@@ -136,9 +167,9 @@ class JobManager {
       this.queue.push(async () => {
         try {
           if (typeof job === 'function') {
-            await job(data);
+            return await job(data);
           } else if (typeof job === 'string') {
-            await require(job)(data);
+            return await require(job)(data);
           }
         } catch (err) {
           // NOTE: each job should be written in a safe way and handle all errors internally
@@ -170,9 +201,6 @@ class JobManager {
     await this.bree.remove(name);
   }
 
-  /**
-   * @param {import('p-wait-for').Options} [options]
-   */
   async shutdown(options: any) {
     await this.bree.stop();
 

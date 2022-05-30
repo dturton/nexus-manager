@@ -9,9 +9,9 @@ export type ResultCode =
 export type Task = (data?: unknown) => Promise<string>;
 
 export type AddJobArgs = {
-  name: string;
+  name?: string;
   at?: string | Date;
-  job?: Task | string;
+  job: Task | string;
   data?: any;
   offloaded?: boolean;
 };

@@ -20,6 +20,20 @@ describe('Job Manager', function () {
 
   describe('Add a job', function () {
     describe('Inline jobs', function () {
+      it('runs a job instantly', async function () {
+        const spy = sinon.spy();
+        const jobManager = new JobManager();
+
+        const response = await jobManager.runNow({
+          job: spy,
+          data: { info: 'test' },
+        });
+
+        expect(spy.called).toBe(true);
+        expect(spy.returned(response)).toBe(true);
+
+        expect(spy.args[0][0]).toEqual({ info: 'test' });
+      });
       it('adds a job to a queue', async function () {
         const spy = sinon.spy();
         const jobManager = new JobManager();
@@ -48,7 +62,7 @@ describe('Job Manager', function () {
           try {
             await jobManager.addJob({
               at: 'invalid expression',
-              name: 'jobName',
+              job: 'jobName',
             });
           } catch (err) {
             const error = err as Error;

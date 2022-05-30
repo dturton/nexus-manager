@@ -33,6 +33,7 @@ export default abstract class BaseWorker {
   }
 
   async start() {
+    console.log(`this.executionId: ${this.executionId}`);
     this.logger.info(this.workerName, this.executionId);
 
     try {
