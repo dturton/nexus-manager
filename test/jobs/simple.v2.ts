@@ -5,8 +5,12 @@ import delay from 'delay';
 
 class Worker1 extends BaseWorker {
   public async run() {
-    if (parentPort) parentPort.postMessage('started');
-    await delay(3000);
+    /* Sending a message to the parent thread that the worker has started. */
+    // if (parentPort) parentPort.postMessage('started');
+
+    /* Delaying the execution of the worker for 1 seconds. */
+    await delay(1000);
+    throw new Error('Error in worker -- as TEST');
     return 'EXECUTION_SUCCESSFUL' as ResultCode;
   }
 }
