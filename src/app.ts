@@ -4,12 +4,22 @@ import Monitor from './Monitor';
 import Store from './Store';
 import IndexPage from './views/index';
 import JobManager from './JobManager';
+import { http } from '@deepkit/http';
 
 const manager = new JobManager();
 
+export class TestPage {
+  constructor(private manager: JobManager) {}
+  @http.GET('/jobs').name('jobs').description('Lists jobs')
+  listJos() {
+    return this.manager.store.getJobs();
+  }
+}
+
 new App({
-  controllers: [IndexPage],
+  controllers: [IndexPage, TestPage],
   providers: [
+    TestPage,
     Monitor,
     JobManager,
     { provide: Store, useValue: Store.init(manager.bree) },

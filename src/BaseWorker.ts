@@ -5,7 +5,13 @@ import { parentPort } from 'worker_threads';
 import logger from './logger';
 import pRetry, { AbortError } from 'p-retry';
 
-import { hooks, middleware, collect } from '@feathersjs/hooks';
+import {
+  hooks,
+  middleware,
+  collect,
+  HookContextData,
+  NextFunction,
+} from '@feathersjs/hooks';
 import console from 'console';
 
 export default abstract class BaseWorker {
@@ -40,8 +46,8 @@ export default abstract class BaseWorker {
     logger.log('err', err);
   };
 
-  handle_before = (context: any) => {
-    console.log(JSON.stringify(context, null, 2));
+  handle_before = async (context: HookContextData) => {
+    console.log(`context.data: ${JSON.stringify(context)}`);
   };
 
   handle_after = (context: any) => {

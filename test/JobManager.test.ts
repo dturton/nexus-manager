@@ -114,6 +114,7 @@ describe('Job Manager', function () {
             at: timeInTenSeconds,
             job: jobPath,
             name: 'job-in-ten',
+            data: { info: 'test' },
           });
 
           await clock.nextAsync();
