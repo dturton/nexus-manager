@@ -9,8 +9,8 @@ class Worker1 extends BaseWorker {
     // if (parentPort) parentPort.postMessage('started');
 
     /* Delaying the execution of the worker for 1 seconds. */
-    await delay(1000);
-    throw new Error('Error in worker -- as TEST');
+    await delay(3000);
+
     return 'EXECUTION_SUCCESSFUL' as ResultCode;
   }
 }

@@ -14,22 +14,14 @@ import {
 } from '@feathersjs/hooks';
 import console from 'console';
 
-const logExecution = async (context: HookContext, next: NextFunction) => {
-  const start = new Date().getTime();
-  console.log('start', start);
-  await next();
-  const end = new Date().getTime();
-  console.log('end', end);
-};
-
 const handle_error = (context: any) => {
   const err = new Date().getTime();
-  console.log('err', err);
+  logger.log('err', err);
 };
 
 const handle_before = (context: any) => {
   const start = new Date().getTime();
-  console.log('start', start);
+  logger.log('start', start);
 };
 
 const handle_after = (context: any) => {
@@ -65,8 +57,6 @@ export default abstract class BaseWorker {
   }
 
   async start() {
-    this.logger.info(this.workerName, this.executionId);
-
     try {
       const info = await pRetry(
         hooks(
@@ -84,15 +74,15 @@ export default abstract class BaseWorker {
             attemptNumber: any;
             retriesLeft: any;
           }) => {
-            console.log(
+            logger.info(
               `Attempt ${error.attemptNumber} failed. There are ${error.retriesLeft} retries left.`,
             );
           },
           retries: 2,
         },
       );
-      console.log(info);
-      await this.done();
+
+      await this.done(info);
     } catch (error) {
       const e = error as Error;
       this.resultCode = 'ERROR';
@@ -101,7 +91,8 @@ export default abstract class BaseWorker {
     }
   }
 
-  async done() {
+  async done(result?: any) {
+    logger.info(`Worker <green>${result}</green> done!`);
     if (this.resultCode == undefined) {
       this.resultCode = 'EXECUTION_SUCCESSFUL';
     }
