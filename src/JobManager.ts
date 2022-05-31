@@ -10,6 +10,7 @@ import type { queue, done } from 'fastq';
 import { AddJobArgs, Task } from './types';
 import Bree from 'bree';
 import Monitor from './Monitor';
+import Store from './Store';
 
 Bree.extend(require('@breejs/ts-worker'));
 
@@ -36,13 +37,15 @@ const handler = (error: any, result: any) => {
 class JobManager {
   queue: queue;
   bree: Bree;
+  store: Store;
   monitor: Monitor = new Monitor();
 
   constructor() {
     this.queue = fastq(this, queueWorker, 1);
 
     this.bree = new Bree({
-      root: false, // set this to `false` to prevent requiring a root directory of jobs
+      root: path.join(__dirname, 'jobs'),
+      jobs: [{ name: 'worker1', interval: '10s' }],
       hasSeconds: true, // precision is needed to avoid task overlaps after immediate execution
       outputWorkerMetadata: false, //TODO: double check settings
       //TODO: logger: true, add logger
@@ -65,6 +68,8 @@ class JobManager {
         //console.info(`message: ${JSON.stringify(message, null, 2)}`);
       },
     });
+    Store.init(this.bree);
+    this.store = Store.getInstance();
   }
 
   /**
