@@ -10,7 +10,7 @@ import {
 @entity.name('jobsexecutions')
 export class JobExecution {
   id: UUID & PrimaryKey = uuid();
-  createdAt: Date = new Date();
+  createdAt: Date;
   startedAt?: Date;
   endedAt?: Date;
   name: string;
@@ -21,6 +21,9 @@ export class JobExecution {
   resultCode: string = 'CREATED';
 
   constructor(name: string, input: any) {
+    const executionDate = new Date();
+    this.createdAt = executionDate;
+    this.startedAt = executionDate; // TODO: change this if started at is needed
     this.name = name;
     this.input = input;
   }
