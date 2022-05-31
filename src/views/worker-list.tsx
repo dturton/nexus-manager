@@ -1,4 +1,4 @@
-import { JobExecution } from '../entities';
+import { JobExecution } from '../JobExecution';
 import Monitor from '../Monitor';
 
 import { WorkerDetail } from './worker-detail';

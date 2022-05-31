@@ -1,4 +1,4 @@
-import { JobExecution } from './entities';
+import { JobExecution } from './JobExecution';
 import Bree from 'bree';
 import * as path from 'node:path';
 
