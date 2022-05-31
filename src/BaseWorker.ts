@@ -5,29 +5,8 @@ import { parentPort } from 'worker_threads';
 import logger from './logger';
 import pRetry, { AbortError } from 'p-retry';
 
-import {
-  hooks,
-  HookContext,
-  NextFunction,
-  middleware,
-  collect,
-} from '@feathersjs/hooks';
+import { hooks, middleware, collect } from '@feathersjs/hooks';
 import console from 'console';
-
-const handle_error = (context: any) => {
-  const err = new Date().getTime();
-  logger.log('err', err);
-};
-
-const handle_before = (context: any) => {
-  const start = new Date().getTime();
-  logger.log('start', start);
-};
-
-const handle_after = (context: any) => {
-  const end = new Date().getTime();
-  console.log('end', end);
-};
 
 export default abstract class BaseWorker {
   filePath: string;
@@ -56,6 +35,20 @@ export default abstract class BaseWorker {
     return 'CREATED';
   }
 
+  handle_error = (context: any) => {
+    const err = new Date().getTime();
+    logger.log('err', err);
+  };
+
+  handle_before = (context: any) => {
+    console.log(JSON.stringify(context, null, 2));
+  };
+
+  handle_after = (context: any) => {
+    const end = new Date().getTime();
+    console.log('end', end);
+  };
+
   async start() {
     try {
       const info = await pRetry(
@@ -63,9 +56,9 @@ export default abstract class BaseWorker {
           await this.run,
           middleware([
             collect({
-              before: [handle_before],
-              after: [handle_after],
-              error: [handle_error],
+              before: [this.handle_before],
+              after: [this.handle_after],
+              error: [this.handle_error],
             }),
           ]),
         ),
