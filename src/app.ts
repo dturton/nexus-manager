@@ -5,9 +5,15 @@ import Store from './Store';
 import IndexPage from './views/index';
 import JobManager from './JobManager';
 
+const manager = new JobManager();
+
 new App({
   controllers: [IndexPage],
-  providers: [Monitor, JobManager],
+  providers: [
+    Monitor,
+    JobManager,
+    { provide: Store, useValue: Store.init(manager.bree) },
+  ],
   imports: [
     new FrameworkModule({
       publicDir: 'public',

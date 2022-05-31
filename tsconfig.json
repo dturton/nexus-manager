@@ -9,9 +9,13 @@
     "moduleResolution": "node",
     "jsx": "react-jsx",
     "jsxImportSource": "@deepkit/template",
-    "types": ["reflect-metadata", "jest", "node"]
+    "types": ["reflect-metadata", "jest", "node"],
+    "typeRoots": ["./src/types"]
   },
-
+  "files": [
+    "./src/types/@breejs/later.d.ts",
+    "./src/types/@tryghost/errors.d.ts"
+  ],
   "reflection": true,
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules/**"],
