@@ -1,7 +1,7 @@
 import path from 'path';
 import later from '@breejs/later';
 import pWaitFor from 'p-wait-for';
-import { UnhandledJobError, IncorrectUsageError } from '@tryghost/errors';
+import AppError from './errors';
 import logger from './logger';
 import isCronExpression from './is-cron-expression';
 import assembleBreeJob from './assemble-bree-job';
@@ -81,8 +81,6 @@ class JobManager {
    * @prop {Object} [job.data] - data to be passed into the job
    */
   async runNow({ job, data = {} }: AddJobArgs) {
-    logger.info('Adding one off inline job to the queue');
-
     try {
       if (typeof job === 'function') {
         return await job(data);
@@ -93,9 +91,9 @@ class JobManager {
       // NOTE: each job should be written in a safe way and handle all errors internally
       //       if the error is caught here jobs implementation should be changed
       logger.error(
-        new UnhandledJobError({
-          context: typeof job === 'function' ? 'function' : job,
-          err,
+        new AppError({
+          statusCode: '500',
+          message: 'Job failed',
         }),
       );
 
@@ -129,7 +127,8 @@ class JobManager {
         if (typeof job === 'string') {
           name = path.parse(job).name;
         } else {
-          throw new IncorrectUsageError({
+          throw new AppError({
+            statusCode: '500',
             message: 'Name parameter should be present if job is a function',
           });
         }
@@ -146,7 +145,8 @@ class JobManager {
           (schedule.error && schedule.error !== -1) ||
           schedule.schedules.length === 0
         ) {
-          throw new IncorrectUsageError({
+          throw new AppError({
+            statusCode: '500',
             message: 'Invalid schedule format',
           });
         }
@@ -180,9 +180,9 @@ class JobManager {
           // NOTE: each job should be written in a safe way and handle all errors internally
           //       if the error is caught here jobs implementation should be changed
           logger.error(
-            new UnhandledJobError({
-              context: typeof job === 'function' ? 'function' : job,
-              err,
+            new AppError({
+              statusCode: '500',
+              message: 'Job failed',
             }),
           );
 

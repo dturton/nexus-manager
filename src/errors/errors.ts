@@ -19,7 +19,7 @@ export type Options = {
   err: string | Error | string[];
 };
 
-class GhostError extends Error {
+export class JobError extends Error {
   statusCode: number;
   errorType: string;
   level: string;
@@ -99,8 +99,8 @@ class GhostError extends Error {
   }
 }
 
-const ghostErrors = {
-  InternalServerError: class InternalServerError extends GhostError {
+const jobErrors = {
+  InternalServerError: class InternalServerError extends JobError {
     constructor(options: any) {
       super(
         merge(
@@ -115,7 +115,7 @@ const ghostErrors = {
       );
     }
   },
-  IncorrectUsageError: class IncorrectUsageError extends GhostError {
+  IncorrectUsageError: class IncorrectUsageError extends JobError {
     constructor(options: any) {
       super(
         merge(
@@ -130,7 +130,7 @@ const ghostErrors = {
       );
     }
   },
-  NotFoundError: class NotFoundError extends GhostError {
+  NotFoundError: class NotFoundError extends JobError {
     constructor(options: any) {
       super(
         merge(
@@ -145,7 +145,7 @@ const ghostErrors = {
       );
     }
   },
-  BadRequestError: class BadRequestError extends GhostError {
+  BadRequestError: class BadRequestError extends JobError {
     constructor(options: any) {
       super(
         merge(
@@ -159,7 +159,7 @@ const ghostErrors = {
       );
     }
   },
-  UnauthorizedError: class UnauthorizedError extends GhostError {
+  UnauthorizedError: class UnauthorizedError extends JobError {
     constructor(options: any) {
       super(
         merge(
@@ -173,7 +173,7 @@ const ghostErrors = {
       );
     }
   },
-  NoPermissionError: class NoPermissionError extends GhostError {
+  NoPermissionError: class NoPermissionError extends JobError {
     constructor(options: any) {
       super(
         merge(
@@ -187,7 +187,7 @@ const ghostErrors = {
       );
     }
   },
-  ValidationError: class ValidationError extends GhostError {
+  ValidationError: class ValidationError extends JobError {
     constructor(options: any) {
       super(
         merge(
@@ -201,7 +201,7 @@ const ghostErrors = {
       );
     }
   },
-  UnsupportedMediaTypeError: class UnsupportedMediaTypeError extends GhostError {
+  UnsupportedMediaTypeError: class UnsupportedMediaTypeError extends JobError {
     constructor(options: any) {
       super(
         merge(
@@ -215,7 +215,7 @@ const ghostErrors = {
       );
     }
   },
-  TooManyRequestsError: class TooManyRequestsError extends GhostError {
+  TooManyRequestsError: class TooManyRequestsError extends JobError {
     constructor(options: any) {
       super(
         merge(
@@ -230,7 +230,7 @@ const ghostErrors = {
       );
     }
   },
-  MaintenanceError: class MaintenanceError extends GhostError {
+  MaintenanceError: class MaintenanceError extends JobError {
     constructor(options: any) {
       super(
         merge(
@@ -244,7 +244,7 @@ const ghostErrors = {
       );
     }
   },
-  MethodNotAllowedError: class MethodNotAllowedError extends GhostError {
+  MethodNotAllowedError: class MethodNotAllowedError extends JobError {
     constructor(options: any) {
       super(
         merge(
@@ -258,7 +258,7 @@ const ghostErrors = {
       );
     }
   },
-  RequestNotAcceptableError: class RequestNotAcceptableError extends GhostError {
+  RequestNotAcceptableError: class RequestNotAcceptableError extends JobError {
     constructor(options: any) {
       super(
         merge(
@@ -274,7 +274,7 @@ const ghostErrors = {
       );
     }
   },
-  RequestEntityTooLargeError: class RequestEntityTooLargeError extends GhostError {
+  RequestEntityTooLargeError: class RequestEntityTooLargeError extends JobError {
     constructor(options: any) {
       super(
         merge(
@@ -288,7 +288,7 @@ const ghostErrors = {
       );
     }
   },
-  TokenRevocationError: class TokenRevocationError extends GhostError {
+  TokenRevocationError: class TokenRevocationError extends JobError {
     constructor(options: any) {
       super(
         merge(
@@ -302,7 +302,7 @@ const ghostErrors = {
       );
     }
   },
-  VersionMismatchError: class VersionMismatchError extends GhostError {
+  VersionMismatchError: class VersionMismatchError extends JobError {
     constructor(options: any) {
       super(
         merge(
@@ -316,7 +316,7 @@ const ghostErrors = {
       );
     }
   },
-  DataExportError: class DataExportError extends GhostError {
+  DataExportError: class DataExportError extends JobError {
     constructor(options: any) {
       super(
         merge(
@@ -330,7 +330,7 @@ const ghostErrors = {
       );
     }
   },
-  DataImportError: class DataImportError extends GhostError {
+  DataImportError: class DataImportError extends JobError {
     constructor(options: any) {
       super(
         merge(
@@ -344,7 +344,7 @@ const ghostErrors = {
       );
     }
   },
-  EmailError: class EmailError extends GhostError {
+  EmailError: class EmailError extends JobError {
     constructor(options: any) {
       super(
         merge(
@@ -358,97 +358,8 @@ const ghostErrors = {
       );
     }
   },
-  ThemeValidationError: class ThemeValidationError extends GhostError {
-    constructor(options: any) {
-      super(
-        merge(
-          {
-            statusCode: 422,
-            errorType: 'ThemeValidationError',
-            message: 'The theme has a validation error.',
-            errorDetails: {},
-          },
-          options,
-        ),
-      );
-    }
-  },
-  DisabledFeatureError: class DisabledFeatureError extends GhostError {
-    constructor(options: any) {
-      super(
-        merge(
-          {
-            statusCode: 409,
-            errorType: 'DisabledFeatureError',
-            message:
-              'Unable to complete the request, this feature is disabled.',
-          },
-          options,
-        ),
-      );
-    }
-  },
-  UpdateCollisionError: class UpdateCollisionError extends GhostError {
-    constructor(options: any) {
-      super(
-        merge(
-          {
-            statusCode: 409,
-            errorType: 'UpdateCollisionError',
-            message: 'Unable to complete the request, there was a conflict.',
-          },
-          options,
-        ),
-      );
-    }
-  },
-  HostLimitError: class HostLimitError extends GhostError {
-    constructor(options: any) {
-      super(
-        merge(
-          {
-            errorType: 'HostLimitError',
-            hideStack: true,
-            statusCode: 403,
-            message:
-              'Unable to complete the request, this resource is limited.',
-          },
-          options,
-        ),
-      );
-    }
-  },
-  HelperWarning: class HelperWarning extends GhostError {
-    constructor(options: any) {
-      super(
-        merge(
-          {
-            errorType: 'HelperWarning',
-            hideStack: true,
-            statusCode: 400,
-            message: 'A theme helper has done something unexpected.',
-          },
-          options,
-        ),
-      );
-    }
-  },
-  PasswordResetRequiredError: class PasswordResetRequiredError extends GhostError {
-    constructor(options: any) {
-      super(
-        merge(
-          {
-            errorType: 'PasswordResetRequiredError',
-            statusCode: 401,
-            message:
-              'For security, you need to create a new password. An email has been sent to you with instructions!',
-          },
-          options,
-        ),
-      );
-    }
-  },
-  UnhandledJobError: class UnhandledJobError extends GhostError {
+
+  UnhandledJobError: class UnhandledJobError extends JobError {
     constructor(options: any) {
       super(
         merge(
@@ -462,39 +373,13 @@ const ghostErrors = {
       );
     }
   },
-  NoContentError: class NoContentError extends GhostError {
-    constructor(options: any) {
-      super(
-        merge(
-          {
-            errorType: 'NoContentError',
-            statusCode: 204,
-            hideStack: true,
-          },
-          options,
-        ),
-      );
-    }
-  },
-  ConflictError: class ConflictError extends GhostError {
-    constructor(options: any) {
-      super(
-        merge(
-          {
-            errorType: 'ConflictError',
-            statusCode: 409,
-            message: 'The server has encountered an conflict.',
-          },
-          options,
-        ),
-      );
-    }
-  },
 };
 
-module.exports = ghostErrors;
+export jobErrors;
 
-const ghostErrorsWithBase = Object.assign({}, ghostErrors, { GhostError });
+const ghostErrorsWithBase = Object.assign({}, jobErrors, {
+  JobError: JobError,
+});
 module.exports.utils = {
   serialize: utils.serialize.bind(ghostErrorsWithBase),
   deserialize: utils.deserialize.bind(ghostErrorsWithBase),
