@@ -34,10 +34,10 @@ export default class Monitor extends Database {
 
   async endExecution(executionId: any, resultCode: ResultCode, result: any) {
     const endedAt = new Date();
-    const execution = await this.query(JobExecution)
+    await this.query(JobExecution)
       .filter({
         id: executionId,
       })
-      .patchOne({ resultCode, endedAt });
+      .patchOne({ resultCode, endedAt, result });
   }
 }

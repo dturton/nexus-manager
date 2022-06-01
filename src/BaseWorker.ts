@@ -60,15 +60,16 @@ export default abstract class BaseWorker {
   };
 
   handle_after = async (context: any) => {
-    // const executionId = workerData.job.worker.workerData.executionId;
-    // await this.monitor.endExecution(
-    //   executionId,
-    //   'EXECUTION_SUCCESSFUL',
-    //   context,
-    // );
+    const executionId = workerData.job.worker.workerData.executionId;
+    await this.monitor.endExecution(executionId, 'EXECUTION_SUCCESSFUL', {
+      result: context.result,
+    });
   };
 
   async start() {
+    const dataArg = workerData.job.worker.workerData
+      ? workerData.job.worker.workerData
+      : {};
     try {
       const info = await pRetry(
         hooks(
@@ -87,7 +88,9 @@ export default abstract class BaseWorker {
             retriesLeft: any;
           }) => {
             logger.info(
-              `Attempt ${error.attemptNumber} failed. There are ${error.retriesLeft} retries left.`,
+              `Attempt ${error.attemptNumber} failed. There are ${
+                error.retriesLeft
+              } retries left. ${JSON.stringify(error)}`,
             );
           },
           retries: 2,
