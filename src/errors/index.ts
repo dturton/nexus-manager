@@ -8,7 +8,7 @@ export abstract class CustomError extends Error {
   }) {
     super(message);
     this.name = this.constructor.name;
-
+    Error.captureStackTrace(this);
     Object.setPrototypeOf(this, CustomError.prototype);
   }
 }
@@ -34,3 +34,7 @@ export class ApiRequestError extends CustomError {
     }
   }
 }
+
+const asyncHandler =
+  (fn: any) => (req: Request, res: Response, next: NextFunction) =>
+    Promise.resolve(fn(req, res, next)).catch(next);

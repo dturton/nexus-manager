@@ -1,0 +1,4 @@
+{
+  "ignoreDeps": ["dev"],
+  "ignorePackages": ["nodemon"]
+}
