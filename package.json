@@ -4,12 +4,12 @@
   "description": "d",
   "repository": "https://github.com/dturton/node-durable-task",
   "license": "MIT",
-  "keywords": [],
   "scripts": {
     "start": "NODE_OPTIONS=--preserve-symlinks ts-node-dev src/app server:start",
     "build": "run-p build:*",
     "build:main": "tsc -p tsconfig.json",
-    "build:module": "tsc -p tsconfig.module.json"
+    "build:module": "tsc -p tsconfig.module.json",
+    "dev:server": "nodemon --watch './**/*.ts' --exec 'node --experimental-specifier-resolution=node --loader ts-node/esm' src/index.ts"
   },
   "engines": {
     "node": ">=14.16"
