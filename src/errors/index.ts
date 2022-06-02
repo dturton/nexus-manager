@@ -1,22 +1,35 @@
-export * from './errors';
+export abstract class CustomError extends Error {
+  constructor({
+    message,
+    statusCode,
+  }: {
+    message?: string;
+    statusCode?: number;
+  }) {
+    super(message);
+    this.name = this.constructor.name;
 
-export type AppErrorOptions = {
-  statusCode: string;
-  message: string;
-  isOperational?: boolean;
-  stack?: string;
-};
+    Object.setPrototypeOf(this, CustomError.prototype);
+  }
+}
 
-export default class AppError extends Error {
-  statusCode: string;
-  isOperational: boolean;
-  constructor(options: AppErrorOptions) {
-    super(options.message);
-    this.statusCode = options.statusCode;
-    this.isOperational = options.isOperational || true;
-    if (options.stack) {
-      this.stack = options.stack;
-    } else {
+export class ApiRequestError extends CustomError {
+  statusCode = 400;
+  constructor({
+    message,
+    statusCode,
+  }: {
+    message: string;
+    statusCode: number;
+  }) {
+    super({
+      message,
+      statusCode,
+    });
+    this.message = message;
+    this.statusCode = statusCode;
+    Object.setPrototypeOf(this, ApiRequestError.prototype);
+    if (!this.stack) {
       Error.captureStackTrace(this, this.constructor);
     }
   }
