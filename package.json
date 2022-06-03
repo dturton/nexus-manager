@@ -4,6 +4,7 @@
   "description": "d",
   "repository": "https://github.com/dturton/node-durable-task",
   "license": "MIT",
+  "exports": "./dist/index.js",
   "scripts": {
     "start": "NODE_OPTIONS=--preserve-symlinks ts-node-dev src/app server:start",
     "build": "run-p build:*",
@@ -76,6 +77,8 @@
     "cron-validate": "^1.4.3",
     "debug": "^4.3.4",
     "dotenv": "^16.0.1",
+    "got": "^12.1.0",
+    "got-cjs": "^12.0.1",
     "lodash": "^4.17.21",
     "p-retry": "^4.6.1",
     "p-wait-for": "^3.2.0",

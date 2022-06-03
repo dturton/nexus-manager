@@ -5,14 +5,7 @@ import { parentPort, workerData } from 'worker_threads';
 import logger from './logger';
 import pRetry, { AbortError } from 'p-retry';
 
-import {
-  hooks,
-  middleware,
-  collect,
-  HookContextData,
-  NextFunction,
-} from '@feathersjs/hooks';
-import console from 'console';
+import { hooks, middleware, collect, HookContextData } from '@feathersjs/hooks';
 
 export default abstract class BaseWorker {
   filePath: string;
@@ -40,9 +33,11 @@ export default abstract class BaseWorker {
     return 'CREATED';
   }
 
-  handle_error = (context: any) => {
-    const err = new Date().getTime();
-    logger.log('err', err);
+  handle_error = async (context: any) => {
+    const executionId = workerData.job.worker.workerData.executionId;
+    await this.monitor.endExecution(executionId, 'EXECUTION_FAILED', {
+      result: context,
+    });
   };
 
   handle_before = async (context: HookContextData) => {
@@ -67,9 +62,6 @@ export default abstract class BaseWorker {
   };
 
   async start() {
-    const dataArg = workerData.job.worker.workerData
-      ? workerData.job.worker.workerData
-      : {};
     try {
       const info = await pRetry(
         hooks(
@@ -93,21 +85,20 @@ export default abstract class BaseWorker {
               } retries left. ${JSON.stringify(error)}`,
             );
           },
-          retries: 2,
+          retries: 0,
         },
       );
 
       await this.done(info);
     } catch (error) {
       const e = error as Error;
-
-      this.logger.error(e.message + e.stack);
-      await this.done();
+      this.logger.error(e.message);
+      await this.done(error);
     }
   }
 
   async done(result?: any) {
-    logger.info(`Worker <green>${result}</green> done!`);
+    // logger.info(`Worker <green>${result}</green> done!`);
 
     if (parentPort) {
       parentPort.postMessage('done');
