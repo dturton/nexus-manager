@@ -70,7 +70,7 @@ describe('Job Manager', function () {
           }
         });
 
-        it('schedules a job to run immediately and catch error', async () => {
+        it('test catch error', async () => {
           const jobManager = new JobManager();
           const clock = FakeTimers.install({ now: Date.now() });
           const jobPath = path.resolve(__dirname, './jobs/error.ts');
