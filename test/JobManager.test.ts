@@ -55,7 +55,7 @@ describe('Job Manager', function () {
         expect(spy.args[0][0]).toEqual({ info: 'test' });
       });
 
-      describe('Offloaded jobs', function () {
+      describe('Bree jobs', function () {
         it('fails to schedule for invalid scheduling expression', async function () {
           const jobManager = new JobManager();
 
@@ -76,11 +76,11 @@ describe('Job Manager', function () {
           const jobPath = path.resolve(__dirname, './jobs/error.ts');
           await jobManager.addJob({
             job: jobPath,
-            name: 'job-now',
+            name: 'job-now-error',
             data: { info: 'test' },
           });
 
-          expect(typeof jobManager.bree.timeouts.get('job-now')).toEqual(
+          expect(typeof jobManager.bree.timeouts.get('job-now-error')).toEqual(
             'object',
           );
 
@@ -88,17 +88,19 @@ describe('Job Manager', function () {
           clock.tick(1);
 
           const promise = new Promise<void>((resolve, reject) => {
-            jobManager.bree.workers.get('job-now')!.on('error', reject);
-            jobManager.bree.workers.get('job-now')!.on('message', message => {
-              if (message === 'done') {
-                resolve();
-              }
-            });
+            jobManager.bree.workers.get('job-now-error')!.on('error', reject);
+            jobManager.bree.workers
+              .get('job-now-error')!
+              .on('message', message => {
+                if (message === 'done') {
+                  resolve();
+                }
+              });
           });
 
           await promise;
 
-          expect(jobManager.bree.workers.get('job-now')).toBeUndefined();
+          expect(jobManager.bree.workers.get('job-now-error')).toBeUndefined();
 
           clock.uninstall();
         });

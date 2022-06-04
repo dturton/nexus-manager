@@ -11,6 +11,7 @@ import { AddJobArgs, Task } from './types';
 import Bree from 'bree';
 import Monitor from './Monitor';
 import Store from './Store';
+import { Worker } from 'worker_threads';
 
 Bree.extend(require('@breejs/ts-worker'));
 
@@ -99,6 +100,32 @@ class JobManager {
     }
   }
 
+  /* Adding a job to the queue. */
+  async runInQueue({ job, data = {} }: AddJobArgs) {
+    logger.info('Adding one off inline job to the queue');
+
+    this.queue.push(async () => {
+      try {
+        if (typeof job === 'function') {
+          return await job(data);
+        } else if (typeof job === 'string') {
+          return await require(job)(data);
+        }
+      } catch (err) {
+        // NOTE: each job should be written in a safe way and handle all errors internally
+        //       if the error is caught here jobs implementation should be changed
+        logger.error(
+          new ApiRequestError({
+            statusCode: 500,
+            message: 'Job failed',
+          }),
+        );
+
+        throw err;
+      }
+    }, handler);
+  }
+
   /**
    * By default schedules an "offloaded" job. If `offloaded: true` parameter is set,
    * puts an "inline" immediate job into the queue.
@@ -116,7 +143,7 @@ class JobManager {
     job,
     data = {},
     offloaded = true,
-  }: AddJobArgs): Promise<unknown> {
+  }: AddJobArgs): Promise<unknown | Worker> {
     if (offloaded) {
       logger.info('Adding offloaded job to the queue');
       let schedule;
@@ -163,31 +190,27 @@ class JobManager {
       const breeJob = assembleBreeJob(at, job, data, name);
       this.bree.add(breeJob);
 
-      return this.bree.start(name);
-    } else {
-      logger.info('Adding one off inline job to the queue');
-
-      this.queue.push(async () => {
-        try {
-          if (typeof job === 'function') {
-            return await job(data);
-          } else if (typeof job === 'string') {
-            return await require(job)(data);
-          }
-        } catch (err) {
-          // NOTE: each job should be written in a safe way and handle all errors internally
-          //       if the error is caught here jobs implementation should be changed
-          logger.error(
-            new ApiRequestError({
-              statusCode: 500,
-              message: 'Job failed',
-            }),
-          );
-
-          throw err;
-        }
-      }, handler);
+      this.bree.start(name);
+      return this.bree.workers.get(name)!;
     }
+  }
+
+  /**
+   * By default schedules an "offloaded" job. If `offloaded: true` parameter is set,
+   * puts an "inline" immediate job into the queue.
+   *
+   * @param {Object} job - job options
+   * @prop {Function | String} job.job - function or path to a module defining a job
+   * @prop {String} [job.name] - unique job name, if not provided takes function name or job script filename
+   * @prop {String | Date} [job.at] - Date, cron or human readable schedule format. Manage will do immediate execution if not specified. Not supported for "inline" jobs
+   * @prop {Object} [job.data] - data to be passed into the job
+   * @prop {Boolean} [job.offloaded] - creates an "offloaded" job running in a worker thread by default. If set to "false" runs an "inline" job on the same event loop
+   */
+  async addAndWaitJob(options: AddJobArgs): Promise<unknown> {
+    //mark the job as offloaded
+    options.offloaded = true;
+    const jobPromise = await this.addJob(options);
+    return jobPromise;
   }
 
   /**
