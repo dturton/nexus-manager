@@ -1,11 +1,5 @@
 export abstract class CustomError extends Error {
-  constructor({
-    message,
-    statusCode,
-  }: {
-    message?: string;
-    statusCode?: number;
-  }) {
+  constructor({ message }: { message?: string }) {
     super(message);
     this.name = this.constructor.name;
     Error.captureStackTrace(this);
@@ -24,11 +18,23 @@ export class ApiRequestError extends CustomError {
   }) {
     super({
       message,
-      statusCode,
     });
     this.message = message;
     this.statusCode = statusCode;
     Object.setPrototypeOf(this, ApiRequestError.prototype);
+    if (!this.stack) {
+      Error.captureStackTrace(this, this.constructor);
+    }
+  }
+}
+
+export class JobProcessingError extends CustomError {
+  constructor({ message }: { message: string }) {
+    super({
+      message,
+    });
+    this.message = message;
+    Object.setPrototypeOf(this, JobProcessingError.prototype);
     if (!this.stack) {
       Error.captureStackTrace(this, this.constructor);
     }

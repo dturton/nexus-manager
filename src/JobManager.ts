@@ -59,10 +59,7 @@ class JobManager {
           console.info(
             `There was an error while running a worker ${workerMetadata.name}`,
           );
-          throw new JobProcessingError({ message: error.message });
         }
-
-        console.error(error);
       },
       workerMessageHandler: (message, workerMetadata) => {
         //TODO: handle message

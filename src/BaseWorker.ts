@@ -77,28 +77,27 @@ export default abstract class BaseWorker {
             }),
           ]),
         ),
-        // {
-        //   onFailedAttempt: async (error: {
-        //     attemptNumber: number;
-        //     retriesLeft: number;
-        //   }) => {
-        //     logger.info(
-        //       `Attempt ${error.attemptNumber} failed. There are ${
-        //         error.retriesLeft
-        //       } retries left. ${JSON.stringify(error)}`,
-        //     );
-        //   },
-        //   retries: 1,
-        // },
+        {
+          onFailedAttempt: async (error: {
+            attemptNumber: number;
+            retriesLeft: number;
+          }) => {
+            logger.info(
+              `Attempt ${error.attemptNumber} failed. There are ${
+                error.retriesLeft
+              } retries left. ${JSON.stringify(error)}`,
+            );
+          },
+          retries: 1,
+        },
       );
 
       await this.done(info);
     } catch (error) {
       if (error instanceof Error) {
-        const newError = new JobProcessingError({ message: error.message });
-        this.logger.error(newError.message);
-        await this.done(newError);
-        throw newError;
+        // const newError = new JobProcessingError({ message: error.message });
+        // this.logger.error(newError.message);
+        await this.done(error);
       } else {
         this.logger.error(error);
         await this.done(error);
