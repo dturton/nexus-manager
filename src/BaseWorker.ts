@@ -6,6 +6,7 @@ import logger from './logger';
 import pRetry, { AbortError } from 'p-retry';
 
 import { hooks, middleware, collect, HookContextData } from '@feathersjs/hooks';
+import { JobProcessingError } from './errors';
 
 export default abstract class BaseWorker {
   filePath: string;
@@ -19,6 +20,7 @@ export default abstract class BaseWorker {
     this.logger = logger;
     this.workerName = path.basename(filePath, path.extname(filePath));
     this.monitor = new Monitor();
+
     if (parentPort) {
       parentPort.once('message', async (message: string) => {
         if (message === 'cancel') {
@@ -34,6 +36,7 @@ export default abstract class BaseWorker {
   }
 
   handle_error = async (context: any) => {
+    console.log(context);
     const executionId = workerData.job.worker.workerData.executionId;
     await this.monitor.endExecution(executionId, 'EXECUTION_FAILED', {
       result: context,
@@ -74,26 +77,33 @@ export default abstract class BaseWorker {
             }),
           ]),
         ),
-        {
-          onFailedAttempt: (error: {
-            attemptNumber: any;
-            retriesLeft: any;
-          }) => {
-            logger.info(
-              `Attempt ${error.attemptNumber} failed. There are ${
-                error.retriesLeft
-              } retries left. ${JSON.stringify(error)}`,
-            );
-          },
-          retries: 0,
-        },
+        // {
+        //   onFailedAttempt: async (error: {
+        //     attemptNumber: number;
+        //     retriesLeft: number;
+        //   }) => {
+        //     logger.info(
+        //       `Attempt ${error.attemptNumber} failed. There are ${
+        //         error.retriesLeft
+        //       } retries left. ${JSON.stringify(error)}`,
+        //     );
+        //   },
+        //   retries: 1,
+        // },
       );
 
       await this.done(info);
     } catch (error) {
-      const e = error as Error;
-      this.logger.error(e.message);
-      await this.done(error);
+      if (error instanceof Error) {
+        const newError = new JobProcessingError({ message: error.message });
+        this.logger.error(newError.message);
+        await this.done(newError);
+        throw newError;
+      } else {
+        this.logger.error(error);
+        await this.done(error);
+        throw error;
+      }
     }
   }
 

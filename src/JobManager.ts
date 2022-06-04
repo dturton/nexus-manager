@@ -1,7 +1,7 @@
 import path from 'path';
 import later from '@breejs/later';
 import pWaitFor from 'p-wait-for';
-import { ApiRequestError } from './errors/';
+import { ApiRequestError, JobProcessingError } from './errors/';
 import logger from './logger';
 import isCronExpression from './is-cron-expression';
 import assembleBreeJob from './assemble-bree-job';
@@ -59,6 +59,7 @@ class JobManager {
           console.info(
             `There was an error while running a worker ${workerMetadata.name}`,
           );
+          throw new JobProcessingError({ message: error.message });
         }
 
         console.error(error);
