@@ -70,14 +70,47 @@ describe('Job Manager', function () {
           }
         });
 
-        it('schedules a job to run immediately', async function () {
+        it('schedules a job to run immediately and catch error', async () => {
           const jobManager = new JobManager();
           const clock = FakeTimers.install({ now: Date.now() });
-
-          const jobPath = path.resolve(__dirname, './jobs/simple.v2.ts');
+          const jobPath = path.resolve(__dirname, './jobs/error.ts');
           await jobManager.addJob({
             job: jobPath,
             name: 'job-now',
+            data: { info: 'test' },
+          });
+
+          expect(typeof jobManager.bree.timeouts.get('job-now')).toEqual(
+            'object',
+          );
+
+          // allow scheduler to pick up the job
+          clock.tick(1);
+
+          const promise = new Promise<void>((resolve, reject) => {
+            jobManager.bree.workers.get('job-now')!.on('error', reject);
+            jobManager.bree.workers.get('job-now')!.on('message', message => {
+              if (message === 'done') {
+                resolve();
+              }
+            });
+          });
+
+          await promise;
+
+          expect(jobManager.bree.workers.get('job-now')).toBeUndefined();
+
+          clock.uninstall();
+        });
+
+        it('schedules a job to run immediately', async () => {
+          const jobManager = new JobManager();
+          const clock = FakeTimers.install({ now: Date.now() });
+          const jobPath = path.resolve(__dirname, './jobs/simple.ts');
+          await jobManager.addJob({
+            job: jobPath,
+            name: 'job-now',
+            data: { info: 'test' },
           });
 
           expect(typeof jobManager.bree.timeouts.get('job-now')).toEqual(
@@ -106,7 +139,7 @@ describe('Job Manager', function () {
         it('schedules a job using date format', async function () {
           const jobManager = new JobManager();
           const timeInTenSeconds = new Date(Date.now() + 10);
-          const jobPath = path.resolve(__dirname, './jobs/simple.v2.ts');
+          const jobPath = path.resolve(__dirname, './jobs/simple.ts');
 
           const clock = FakeTimers.install({ now: Date.now() });
 

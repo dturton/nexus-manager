@@ -8,24 +8,23 @@ class Worker1 extends BaseWorker {
     const input = workerData.job.worker.workerData;
     if (parentPort) parentPort.postMessage('started');
 
-    const { data } = await client
-      .post('echo', {
-        json: {
-          hello: 'world',
-        },
-        timeout: {
-          request: 1000,
-        },
-        retry: {
-          limit: 0,
-        },
-      })
-      .json();
+    // const { data } = await client
+    //   .post('echo', {
+    //     json: {
+    //       hello: 'world',
+    //     },
+    //     timeout: {
+    //       request: 1000,
+    //     },
+    //     retry: {
+    //       limit: 0,
+    //     },
+    //   })
+    //   .json();
 
     /* Delaying the execution of the worker for 1 seconds. */
-    await delay(3000);
 
-    return data;
+    return input;
   }
 }
 
