@@ -42,15 +42,15 @@ export default abstract class BaseWorker {
   }
 
   handle_error = async (context: HookContext) => {
+    console.log(context.error);
     const executionId = workerData.job.worker.workerData.executionId;
     await this.monitor.endExecution(
       executionId,
       'EXECUTION_FAILED',
-      {
-        context,
-      },
-      { error: context.error },
+      context,
+      context.error,
     );
+    await this.done();
   };
 
   handle_before = async (context: HookContextData) => {
@@ -69,56 +69,37 @@ export default abstract class BaseWorker {
 
   handle_after = async (context: any) => {
     const executionId = workerData.job.worker.workerData.executionId;
-    await this.monitor.endExecution(executionId, 'EXECUTION_SUCCESSFUL', {
-      result: context.result,
-    });
+    await this.monitor.endExecution(
+      executionId,
+      'EXECUTION_SUCCESSFUL',
+      {
+        result: context.result,
+      },
+      null,
+    );
   };
 
   async start() {
-    try {
-      const info = await pRetry(
-        hooks(
-          await this.run,
-          middleware([
-            collect({
-              before: [this.handle_before],
-              after: [this.handle_after],
-              error: [this.handle_error],
-            }),
-          ]),
-        ),
-        {
-          onFailedAttempt: async (error: {
-            attemptNumber: number;
-            retriesLeft: number;
-          }) => {
-            logger.info(
-              `Attempt ${error.attemptNumber} failed. There are ${
-                error.retriesLeft
-              } retries left. ${JSON.stringify(error)}`,
-            );
-          },
-          retries: 1,
-        },
-      );
+    const info = await pRetry(
+      hooks(
+        await this.run,
+        middleware([
+          collect({
+            before: [this.handle_before],
+            after: [this.handle_after],
+            error: [this.handle_error],
+          }),
+        ]),
+      ),
+      {
+        retries: 1,
+      },
+    );
 
-      await this.done(info);
-    } catch (error) {
-      if (error instanceof Error) {
-        // const newError = new JobProcessingError({ message: error.message });
-        // this.logger.error(newError.message);
-        await this.done(error);
-      } else {
-        this.logger.error(error);
-        await this.done(error);
-        throw error;
-      }
-    }
+    await this.done();
   }
 
-  async done(result?: any) {
-    // logger.info(`Worker <green>${result}</green> done!`);
-
+  async done() {
     if (parentPort) {
       parentPort.postMessage('done');
     } else {

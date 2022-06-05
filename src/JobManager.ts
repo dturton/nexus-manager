@@ -54,20 +54,14 @@ class JobManager {
         error: any,
         workerMetadata: { threadId: any; name: any },
       ) => {
-        if (workerMetadata.threadId) {
-          console.info(
-            `There was an error while running a worker ${workerMetadata.name} with thread ID: ${workerMetadata.threadId}`,
-          );
-        } else {
-          console.info(
-            `There was an error while running a worker ${workerMetadata.name}`,
-          );
-        }
+        logger.error(
+          `workerMetadata: name ${workerMetadata.name} -- error: ${error}) `,
+        );
       },
-      workerMessageHandler: (message: any, workerMetadata: any) => {
-        //TODO: handle message
-        //console.info(`message: ${JSON.stringify(message, null, 2)}`);
-      },
+      // workerMessageHandler: (message: any, workerMetadata: any) => {
+      //   TODO: handle message
+      //   console.info(`message: ${JSON.stringify(message, null, 2)}`);
+      // },
     });
     Store.init(this.bree);
     this.store = Store.getInstance();

@@ -18,7 +18,7 @@ export class JobExecution {
   correlationId?: UUID;
   input: DatabaseField<{ type: 'jsob' }> = {};
   result: DatabaseField<{ type: 'jsob' }> = {};
-  error?: DatabaseField<{ type: 'jsob' }>;
+  error?: string;
   resultCode: string = 'CREATED';
 
   constructor(name: string, input: any) {

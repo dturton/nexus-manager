@@ -82,10 +82,19 @@ describe('Job Manager', function () {
         });
 
         clock.tick(1);
-        await new Promise<void>((resolve, reject) => {
-          jobManager.bree.workers.get('job-now-error')!.on('error', reject);
+        await new Promise<void>((reject, resolve) => {
+          jobManager.bree.workers
+            .get('job-now-error')!
+            .on('message', message => {
+              if (message === 'done') {
+                resolve();
+              }
+              if (message === 'error') {
+                reject();
+              }
+            });
         });
-
+        await delay(1);
         clock.uninstall();
       });
 

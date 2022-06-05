@@ -43,6 +43,6 @@ export default class Monitor extends Database {
       .filter({
         id: executionId,
       })
-      .patchOne({ resultCode, endedAt, result, error });
+      .patchOne({ resultCode, endedAt, error, result });
   }
 }
