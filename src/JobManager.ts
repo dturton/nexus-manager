@@ -47,6 +47,7 @@ class JobManager {
     this.bree = new Bree({
       root: path.join(__dirname, 'jobs'),
       jobs: [{ name: 'worker1', interval: '10s' }],
+      logger: false,
       hasSeconds: true, // precision is needed to avoid task overlaps after immediate execution
       outputWorkerMetadata: false, //TODO: double check settings
       defaultExtension: process.env.ENABLE_JS ? 'js' : 'ts',

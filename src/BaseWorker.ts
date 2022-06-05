@@ -43,7 +43,6 @@ export default abstract class BaseWorker {
   }
 
   handle_error = async (context: HookContext) => {
-    console.log(context.error);
     const executionId = workerData.job.worker.workerData.executionId;
     await this.monitor.endExecution(
       executionId,
@@ -81,7 +80,7 @@ export default abstract class BaseWorker {
   };
 
   async start() {
-    const info = await pRetry(
+    await pRetry(
       hooks(
         await this.run,
         middleware([

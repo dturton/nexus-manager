@@ -39,10 +39,16 @@ export default class Monitor extends Database {
     error?: any,
   ) {
     const endedAt = new Date();
+    const jsonError = JSON.stringify(error);
     await this.query(JobExecution)
       .filter({
         id: executionId,
       })
-      .patchOne({ resultCode, endedAt, error, result });
+      .patchOne({
+        resultCode,
+        endedAt,
+        error: JSON.stringify(error.stack),
+        result,
+      });
   }
 }

@@ -82,6 +82,7 @@ describe('Job Manager', function () {
         });
 
         clock.tick(1);
+
         try {
           await new Promise<void>((resolve, reject) => {
             jobManager.bree.workers
