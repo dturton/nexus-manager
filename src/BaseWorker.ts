@@ -11,6 +11,7 @@ import {
   collect,
   HookContextData,
   HookContext,
+  NextFunction,
 } from '@feathersjs/hooks';
 import { JobProcessingError } from './errors';
 
@@ -50,7 +51,7 @@ export default abstract class BaseWorker {
       context,
       context.error,
     );
-    await this.done();
+    await this.doneWithError();
   };
 
   handle_before = async (context: HookContextData) => {
@@ -97,6 +98,15 @@ export default abstract class BaseWorker {
     );
 
     await this.done();
+  }
+
+  async doneWithError() {
+    if (parentPort) {
+      parentPort.postMessage('error');
+      await this.done();
+    } else {
+      process.exit(1);
+    }
   }
 
   async done() {
