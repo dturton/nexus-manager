@@ -51,7 +51,10 @@ class JobManager {
       outputWorkerMetadata: false, //TODO: double check settings
       //TODO: logger: true, add logger
       defaultExtension: process.env.ENABLE_JS ? 'js' : 'ts',
-      errorHandler: (error, workerMetadata) => {
+      errorHandler: (
+        error: any,
+        workerMetadata: { threadId: any; name: any },
+      ) => {
         if (workerMetadata.threadId) {
           console.info(
             `There was an error while running a worker ${workerMetadata.name} with thread ID: ${workerMetadata.threadId}`,
@@ -62,7 +65,7 @@ class JobManager {
           );
         }
       },
-      workerMessageHandler: (message, workerMetadata) => {
+      workerMessageHandler: (message: any, workerMetadata: any) => {
         //TODO: handle message
         //console.info(`message: ${JSON.stringify(message, null, 2)}`);
       },
@@ -193,24 +196,6 @@ class JobManager {
       this.bree.start(name);
       return this.bree.workers.get(name)!;
     }
-  }
-
-  /**
-   * By default schedules an "offloaded" job. If `offloaded: true` parameter is set,
-   * puts an "inline" immediate job into the queue.
-   *
-   * @param {Object} job - job options
-   * @prop {Function | String} job.job - function or path to a module defining a job
-   * @prop {String} [job.name] - unique job name, if not provided takes function name or job script filename
-   * @prop {String | Date} [job.at] - Date, cron or human readable schedule format. Manage will do immediate execution if not specified. Not supported for "inline" jobs
-   * @prop {Object} [job.data] - data to be passed into the job
-   * @prop {Boolean} [job.offloaded] - creates an "offloaded" job running in a worker thread by default. If set to "false" runs an "inline" job on the same event loop
-   */
-  async addAndWaitJob(options: AddJobArgs): Promise<unknown> {
-    //mark the job as offloaded
-    options.offloaded = true;
-    const jobPromise = await this.addJob(options);
-    return jobPromise;
   }
 
   /**
