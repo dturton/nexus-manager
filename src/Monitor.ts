@@ -32,12 +32,17 @@ export default class Monitor extends Database {
       .patchOne({ $inc: { attempts: 1 } });
   }
 
-  async endExecution(executionId: any, resultCode: ResultCode, result: any) {
+  async endExecution(
+    executionId: any,
+    resultCode: ResultCode,
+    result: any,
+    error?: any,
+  ) {
     const endedAt = new Date();
     await this.query(JobExecution)
       .filter({
         id: executionId,
       })
-      .patchOne({ resultCode, endedAt, result });
+      .patchOne({ resultCode, endedAt, result, error });
   }
 }

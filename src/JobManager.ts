@@ -49,7 +49,6 @@ class JobManager {
       jobs: [{ name: 'worker1', interval: '10s' }],
       hasSeconds: true, // precision is needed to avoid task overlaps after immediate execution
       outputWorkerMetadata: false, //TODO: double check settings
-      //TODO: logger: true, add logger
       defaultExtension: process.env.ENABLE_JS ? 'js' : 'ts',
       errorHandler: (
         error: any,

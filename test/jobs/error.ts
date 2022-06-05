@@ -6,6 +6,7 @@ class ErrorWorker extends BaseWorker {
     const input = workerData.job.worker.workerData;
     if (parentPort) parentPort.postMessage('started');
     throw new Error('it should fail');
+    return input;
   }
 }
 

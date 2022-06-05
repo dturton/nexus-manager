@@ -54,127 +54,108 @@ describe('Job Manager', function () {
 
         expect(spy.args[0][0]).toEqual({ info: 'test' });
       });
+    });
+    describe('Bree jobs', function () {
+      it('fails to schedule for invalid scheduling expression', async function () {
+        const jobManager = new JobManager();
 
-      describe('Bree jobs', function () {
-        it('fails to schedule for invalid scheduling expression', async function () {
-          const jobManager = new JobManager();
-
-          try {
-            await jobManager.addJob({
-              at: 'invalid expression',
-              job: 'jobName',
-            });
-          } catch (err) {
-            const error = err as Error;
-            expect(error.message).toEqual('Invalid schedule format');
-          }
-        });
-
-        it('test catch error', async () => {
-          const jobManager = new JobManager();
-          const clock = FakeTimers.install({ now: Date.now() });
-          const jobPath = path.resolve(__dirname, './jobs/error.ts');
+        try {
           await jobManager.addJob({
-            job: jobPath,
-            name: 'job-now-error',
-            data: { info: 'test' },
+            at: 'invalid expression',
+            job: 'jobName',
           });
+        } catch (err) {
+          const error = err as Error;
+          expect(error.message).toEqual('Invalid schedule format');
+        }
+      });
 
-          expect(typeof jobManager.bree.timeouts.get('job-now-error')).toEqual(
-            'object',
-          );
+      it('test catch error', async () => {
+        const jobManager = new JobManager();
+        const clock = FakeTimers.install({ now: Date.now() });
+        const jobPath = path.resolve(__dirname, './jobs/error.ts');
 
-          // allow scheduler to pick up the job
-          clock.tick(1);
-
-          const promise = new Promise<void>((resolve, reject) => {
-            jobManager.bree.workers.get('job-now-error')!.on('error', reject);
-            jobManager.bree.workers
-              .get('job-now-error')!
-              .on('message', message => {
-                if (message === 'done') {
-                  resolve();
-                }
-              });
-          });
-
-          await promise;
-
-          expect(jobManager.bree.workers.get('job-now-error')).toBeUndefined();
-
-          clock.uninstall();
+        await jobManager.addJob({
+          job: jobPath,
+          name: 'job-now-error',
+          data: { info: 'test' },
         });
 
-        it('schedules a job to run immediately', async () => {
-          const jobManager = new JobManager();
-          const clock = FakeTimers.install({ now: Date.now() });
-          const jobPath = path.resolve(__dirname, './jobs/simple.ts');
-          await jobManager.addJob({
-            job: jobPath,
-            name: 'job-now',
-            data: { info: 'test' },
-          });
-
-          expect(typeof jobManager.bree.timeouts.get('job-now')).toEqual(
-            'object',
-          );
-
-          // allow scheduler to pick up the job
-          clock.tick(1);
-
-          const promise = new Promise<void>((resolve, reject) => {
-            jobManager.bree.workers.get('job-now')!.on('error', reject);
-            jobManager.bree.workers.get('job-now')!.on('message', message => {
-              if (message === 'done') {
-                resolve();
-              }
-            });
-          });
-
-          await promise;
-
-          expect(jobManager.bree.workers.get('job-now')).toBeUndefined();
-
-          clock.uninstall();
+        clock.tick(1);
+        await new Promise<void>((resolve, reject) => {
+          jobManager.bree.workers.get('job-now-error')!.on('error', reject);
         });
 
-        it('schedules a job using date format', async function () {
-          const jobManager = new JobManager();
-          const timeInTenSeconds = new Date(Date.now() + 10);
-          const jobPath = path.resolve(__dirname, './jobs/simple.ts');
+        clock.uninstall();
+      });
 
-          const clock = FakeTimers.install({ now: Date.now() });
-
-          await jobManager.addJob({
-            at: timeInTenSeconds,
-            job: jobPath,
-            name: 'job-in-ten',
-            data: { info: 'test' },
-          });
-
-          await clock.nextAsync();
-
-          expect(jobManager.bree.workers.get('job-in-ten')).toBeDefined();
-
-          const promise = new Promise<void>((resolve, reject) => {
-            jobManager.bree.workers.get('job-in-ten')!.on('error', reject);
-            jobManager.bree.workers
-              .get('job-in-ten')!
-              .on('message', message => {
-                if (message === 'done') {
-                  resolve();
-                }
-              });
-          });
-
-          // allow job to finish execution and exit
-          clock.next();
-
-          await promise;
-          expect(jobManager.bree.timeouts.get('job-in-ten')).toBeUndefined();
-
-          clock.uninstall();
+      it('schedules a job to run immediately', async () => {
+        const jobManager = new JobManager();
+        const clock = FakeTimers.install({ now: Date.now() });
+        const jobPath = path.resolve(__dirname, './jobs/simple.ts');
+        await jobManager.addJob({
+          job: jobPath,
+          name: 'job-now',
+          data: { info: 'test' },
         });
+
+        expect(typeof jobManager.bree.timeouts.get('job-now')).toEqual(
+          'object',
+        );
+
+        // allow scheduler to pick up the job
+        clock.tick(1);
+
+        const promise = new Promise<void>((resolve, reject) => {
+          jobManager.bree.workers.get('job-now')!.on('error', reject);
+          jobManager.bree.workers.get('job-now')!.on('message', message => {
+            if (message === 'done') {
+              resolve();
+            }
+          });
+        });
+
+        await promise;
+
+        expect(jobManager.bree.workers.get('job-now')).toBeUndefined();
+
+        clock.uninstall();
+      });
+
+      it('schedules a job using date format', async function () {
+        const jobManager = new JobManager();
+        const timeInTenSeconds = new Date(Date.now() + 10);
+        const jobPath = path.resolve(__dirname, './jobs/simple.ts');
+
+        const clock = FakeTimers.install({ now: Date.now() });
+
+        await jobManager.addJob({
+          at: timeInTenSeconds,
+          job: jobPath,
+          name: 'job-in-ten',
+          data: { info: 'test' },
+        });
+
+        await clock.nextAsync();
+
+        expect(jobManager.bree.workers.get('job-in-ten')).toBeDefined();
+
+        const promise = new Promise<void>((resolve, reject) => {
+          jobManager.bree.workers.get('job-in-ten')!.on('error', reject);
+          jobManager.bree.workers.get('job-in-ten')!.on('message', message => {
+            if (message === 'done') {
+              resolve();
+            }
+          });
+        });
+
+        // allow job to finish execution and exit
+        clock.next();
+
+        await promise;
+        expect(jobManager.bree.timeouts.get('job-in-ten')).toBeUndefined();
+
+        clock.uninstall();
       });
     });
   });

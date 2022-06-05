@@ -5,7 +5,13 @@ import { parentPort, workerData } from 'worker_threads';
 import logger from './logger';
 import pRetry, { AbortError } from 'p-retry';
 
-import { hooks, middleware, collect, HookContextData } from '@feathersjs/hooks';
+import {
+  hooks,
+  middleware,
+  collect,
+  HookContextData,
+  HookContext,
+} from '@feathersjs/hooks';
 import { JobProcessingError } from './errors';
 
 export default abstract class BaseWorker {
@@ -35,12 +41,16 @@ export default abstract class BaseWorker {
     return 'CREATED';
   }
 
-  handle_error = async (context: any) => {
-    console.log(context);
+  handle_error = async (context: HookContext) => {
     const executionId = workerData.job.worker.workerData.executionId;
-    await this.monitor.endExecution(executionId, 'EXECUTION_FAILED', {
-      result: context,
-    });
+    await this.monitor.endExecution(
+      executionId,
+      'EXECUTION_FAILED',
+      {
+        context,
+      },
+      { error: context.error },
+    );
   };
 
   handle_before = async (context: HookContextData) => {
