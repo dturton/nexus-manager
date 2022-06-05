@@ -83,7 +83,7 @@ describe('Job Manager', function () {
 
         clock.tick(1);
         try {
-          await new Promise<void>((reject, resolve) => {
+          await new Promise<void>((resolve, reject) => {
             jobManager.bree.workers
               .get('job-now-error')!
               .on('message', message => {
@@ -91,13 +91,13 @@ describe('Job Manager', function () {
                   resolve();
                 }
                 if (message === 'error') {
-                  return reject();
+                  reject('triggered error');
                 }
               });
           });
         } catch (err) {
           const error = err as Error;
-          expect(error).toEqual('Invalid schedule format');
+          expect(error).toEqual('triggered error');
         }
 
         clock.uninstall();
