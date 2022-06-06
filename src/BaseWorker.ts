@@ -11,7 +11,6 @@ import {
   collect,
   HookContextData,
   HookContext,
-  NextFunction,
 } from '@feathersjs/hooks';
 
 export default abstract class BaseWorker {

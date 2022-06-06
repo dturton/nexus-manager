@@ -12,7 +12,8 @@ import Bree from 'bree';
 import Monitor from './Monitor';
 import Store from './Store';
 import { Worker } from 'worker_threads';
-import { CustomError } from './errors';
+import { AppError, CustomError } from './errors';
+import { App } from '@deepkit/app';
 
 Bree.extend(require('@breejs/ts-worker'));
 
@@ -107,7 +108,7 @@ class JobManager {
       } catch (err) {
         // NOTE: each job should be written in a safe way and handle all errors internally
         //       if the error is caught here jobs implementation should be changed
-        throw new CustomError('Job failed');
+        throw new AppError('Job failed');
       }
     }, handler);
   }
@@ -138,7 +139,7 @@ class JobManager {
         if (typeof job === 'string') {
           name = path.parse(job).name;
         } else {
-          throw new CustomError(
+          throw new AppError(
             'Name parameter should be present if job is a function',
           );
         }
@@ -155,7 +156,7 @@ class JobManager {
           (schedule.error && schedule.error !== -1) ||
           schedule.schedules.length === 0
         ) {
-          throw new CustomError('Invalid schedule format');
+          throw new AppError('Invalid schedule format');
         }
 
         logger.info(
