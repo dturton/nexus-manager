@@ -10,7 +10,6 @@ export default class Monitor extends Database {
   override name = 'default';
 
   constructor() {
-    const connectionString = process.env.DATABASE_URL;
     const adapter = new PostgresDatabaseAdapter({
       connectionString: process.env.DATABASE_URL,
     });
@@ -39,7 +38,6 @@ export default class Monitor extends Database {
     error?: any,
   ) {
     const endedAt = new Date();
-    const jsonError = JSON.stringify(error);
     await this.query(JobExecution)
       .filter({
         id: executionId,

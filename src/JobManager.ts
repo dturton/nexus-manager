@@ -1,7 +1,7 @@
 import path from 'path';
 import later from '@breejs/later';
 import pWaitFor from 'p-wait-for';
-import { ApiRequestError, JobProcessingError } from './errors/';
+
 import logger from './logger';
 import isCronExpression from './is-cron-expression';
 import assembleBreeJob from './assemble-bree-job';
@@ -12,6 +12,7 @@ import Bree from 'bree';
 import Monitor from './Monitor';
 import Store from './Store';
 import { Worker } from 'worker_threads';
+import { CustomError } from './errors';
 
 Bree.extend(require('@breejs/ts-worker'));
 
@@ -86,12 +87,7 @@ class JobManager {
     } catch (err) {
       // NOTE: each job should be written in a safe way and handle all errors internally
       //       if the error is caught here jobs implementation should be changed
-      logger.error(
-        new ApiRequestError({
-          statusCode: 500,
-          message: 'Job failed',
-        }),
-      );
+      logger.error(new Error('Job failed'));
 
       throw err;
     }
@@ -111,14 +107,7 @@ class JobManager {
       } catch (err) {
         // NOTE: each job should be written in a safe way and handle all errors internally
         //       if the error is caught here jobs implementation should be changed
-        logger.error(
-          new ApiRequestError({
-            statusCode: 500,
-            message: 'Job failed',
-          }),
-        );
-
-        throw err;
+        throw new CustomError('Job failed');
       }
     }, handler);
   }
@@ -149,10 +138,9 @@ class JobManager {
         if (typeof job === 'string') {
           name = path.parse(job).name;
         } else {
-          throw new ApiRequestError({
-            statusCode: 500,
-            message: 'Name parameter should be present if job is a function',
-          });
+          throw new CustomError(
+            'Name parameter should be present if job is a function',
+          );
         }
       }
 
@@ -167,10 +155,7 @@ class JobManager {
           (schedule.error && schedule.error !== -1) ||
           schedule.schedules.length === 0
         ) {
-          throw new ApiRequestError({
-            statusCode: 500,
-            message: 'Invalid schedule format',
-          });
+          throw new CustomError('Invalid schedule format');
         }
 
         logger.info(

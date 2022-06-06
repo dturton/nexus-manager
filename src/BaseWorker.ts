@@ -13,7 +13,6 @@ import {
   HookContext,
   NextFunction,
 } from '@feathersjs/hooks';
-import { JobProcessingError } from './errors';
 
 export default abstract class BaseWorker {
   filePath: string;

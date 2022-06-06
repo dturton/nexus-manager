@@ -34,19 +34,17 @@ describe('Job Manager', function () {
 
         expect(spy.args[0][0]).toEqual({ info: 'test' });
       });
-      it('adds a job to a queue', async function () {
+      it('runInQueue', async function () {
         const spy = sinon.spy();
         const jobManager = new JobManager();
 
-        await jobManager.addJob({
+        await jobManager.runInQueue({
           name: 'inline-job-queue',
           job: spy,
           data: { info: 'test' },
-          offloaded: false,
         });
 
         expect(jobManager.queue.idle()).toBe(false);
-
         await delay(2000);
 
         expect(jobManager.queue.idle()).toBe(true);

@@ -1,42 +1,30 @@
-export abstract class CustomError extends Error {
-  constructor({ message }: { message?: string }) {
+export enum HttpStatusCode {
+  OK = 200,
+  BAD_REQUEST = 400,
+  NOT_FOUND = 404,
+  INTERNAL_SERVER = 500,
+}
+
+export class CustomError extends Error {
+  isOperational: boolean;
+  constructor(message: string, isOperational: boolean = true) {
     super(message);
     this.name = this.constructor.name;
+
+    this.isOperational = isOperational;
     Error.captureStackTrace(this);
     Object.setPrototypeOf(this, CustomError.prototype);
   }
 }
 
-export class ApiRequestError extends CustomError {
-  statusCode = 400;
-  constructor({
-    message,
-    statusCode,
-  }: {
-    message: string;
-    statusCode: number;
-  }) {
-    super({
-      message,
-    });
-    this.message = message;
+export class Api404Error extends CustomError {
+  statusCode: HttpStatusCode;
+  constructor(
+    statusCode = HttpStatusCode.NOT_FOUND,
+    message = 'Not found.',
+    isOperational = true,
+  ) {
+    super(message, isOperational);
     this.statusCode = statusCode;
-    Object.setPrototypeOf(this, ApiRequestError.prototype);
-    if (!this.stack) {
-      Error.captureStackTrace(this, this.constructor);
-    }
-  }
-}
-
-export class JobProcessingError extends CustomError {
-  constructor({ message }: { message: string }) {
-    super({
-      message,
-    });
-    this.message = message;
-    Object.setPrototypeOf(this, JobProcessingError.prototype);
-    if (!this.stack) {
-      Error.captureStackTrace(this, this.constructor);
-    }
   }
 }
