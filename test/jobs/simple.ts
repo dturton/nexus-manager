@@ -1,6 +1,6 @@
 const { parentPort, workerData } = require('worker_threads');
 import BaseWorker from '../../src/BaseWorker';
-import delay from 'delay';
+
 import { client } from '../../src/http/client';
 
 class Worker1 extends BaseWorker {
@@ -11,7 +11,7 @@ class Worker1 extends BaseWorker {
     const { data } = await client
       .post('echo', {
         json: {
-          hello: 'world',
+          hello: 'nexus',
         },
         timeout: {
           request: 1000,
@@ -22,7 +22,7 @@ class Worker1 extends BaseWorker {
       })
       .json();
 
-    return input;
+    return data;
   }
 }
 

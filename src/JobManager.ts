@@ -48,18 +48,14 @@ class JobManager {
 
     this.bree = new Bree({
       root: path.join(__dirname, 'jobs'),
-      jobs: [{ name: 'worker1', interval: '10s' }],
+      jobs: [{ name: 'worker3', interval: '1s' }],
       logger: false,
+      removeCompleted: false,
       hasSeconds: true, // precision is needed to avoid task overlaps after immediate execution
       outputWorkerMetadata: false, //TODO: double check settings
       defaultExtension: process.env.ENABLE_JS ? 'js' : 'ts',
-      errorHandler: (
-        error: any,
-        workerMetadata: { threadId: any; name: any },
-      ) => {
-        logger.error(
-          `workerMetadata: name ${workerMetadata.name} -- error: ${error}) `,
-        );
+      errorHandler: data => {
+        logger.error(`error: ${JSON.stringify(data)}`);
       },
       // workerMessageHandler: (message: any, workerMetadata: any) => {
       //   TODO: handle message
@@ -67,6 +63,7 @@ class JobManager {
       // },
     });
     Store.init(this.bree);
+    this.bree.start();
     this.store = Store.getInstance();
   }
 
@@ -175,6 +172,15 @@ class JobManager {
 
       this.bree.start(name);
       return this.bree.workers.get(name)!;
+    }
+  }
+
+  async runJob(jobName: string) {
+    console.log(jobName);
+    try {
+      await this.bree.run(jobName);
+    } catch (error) {
+      console.log(error);
     }
   }
 

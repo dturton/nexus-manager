@@ -45,8 +45,12 @@ export default class Monitor extends Database {
       .patchOne({
         resultCode,
         endedAt,
-        error: JSON.stringify(error.stack),
+        error: JSON.stringify(error),
         result,
       });
+  }
+
+  async getExecutions(jobName: string) {
+    return await this.query(JobExecution).filter({ jobName }).find();
   }
 }
