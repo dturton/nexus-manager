@@ -23,6 +23,14 @@ export class TestPage {
     });
     return res;
   }
+
+  @http.GET('/addJob').name('runJob').description('Runs a job')
+  async addJob(name: HttpQuery<string> & MinLength<3>) {
+    const res = await this.manager.addJob({
+      job: name,
+    });
+    return res;
+  }
 }
 
 new App({

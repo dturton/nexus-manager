@@ -13,8 +13,6 @@ import Monitor from './Monitor';
 import Store from './Store';
 import { Worker } from 'worker_threads';
 import { AppError, CustomError } from './errors';
-import { App } from '@deepkit/app';
-
 Bree.extend(require('@breejs/ts-worker'));
 
 const debug = require('debug')('nexus');
@@ -48,7 +46,7 @@ class JobManager {
 
     this.bree = new Bree({
       root: path.join(__dirname, 'jobs'),
-      jobs: [{ name: 'worker3', interval: '1s' }],
+      jobs: [{ name: 'worker3', interval: '10s' }],
       logger: false,
       removeCompleted: false,
       hasSeconds: true, // precision is needed to avoid task overlaps after immediate execution
