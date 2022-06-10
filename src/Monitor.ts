@@ -51,6 +51,26 @@ export default class Monitor extends Database {
   }
 
   async getExecutions(jobName: string) {
-    return await this.query(JobExecution).filter({ jobName }).find();
+    const allRecords = await this.query(JobExecution)
+      .filter({ jobName })
+      .find();
+    return allRecords.map((record: JobExecution) => {
+      let startTime = record.startedAt;
+      let endTime = record.endedAt;
+      let hasError =
+        record.resultCode && record.resultCode.indexOf('ERROR') == 0
+          ? true
+          : false;
+      return {
+        id: record.id,
+        startTime: startTime,
+        endTime: endTime,
+        // @ts-ignore
+        duration: endTime ? endTime - startTime : 'pending',
+        resultCode: record.resultCode,
+        hasError,
+        style: hasError ? 'color: red' : '',
+      };
+    });
   }
 }

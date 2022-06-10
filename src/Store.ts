@@ -1,4 +1,4 @@
-import Bree from 'bree';
+import Bree, { Job } from 'bree';
 import Monitor from './Monitor';
 
 class Store {
@@ -28,7 +28,7 @@ class Store {
     };
   }
 
-  getJobStatus(job: { name: any }) {
+  getJobStatus(job: Job) {
     let name = job.name;
     let bree = this.bree;
     let status = 'done';
@@ -51,23 +51,21 @@ class Store {
     };
   }
 
-  getJobs() {
+  async getJobs() {
     let monitor = new Monitor();
 
-    return this.bree.config.jobs.map(
-      (job: { name: any; interval: any; path: any }) => {
-        // let executions = monitor.getExecutions(job.name);
-        const status = this.getJobStatus(job);
-        return {
-          name: job.name,
-          status,
-          interval: job.interval,
-          path: job.path,
-          // topExecutions: executions.slice(0, 3),
-          // otherExecutions: executions.slice(3),
-        };
-      },
-    );
+    return this.bree.config.jobs.map((job: Job) => {
+      const status = this.getJobStatus(job);
+      // let executions = await monitor.getExecutions(job.name);
+      return {
+        name: job.name,
+        status,
+        interval: job.interval,
+        path: job.path,
+        // topExecutions: executions.slice(0, 3),
+        // otherExecutions: executions.slice(3),
+      };
+    });
   }
 }
 
