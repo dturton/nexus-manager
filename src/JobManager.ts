@@ -7,7 +7,7 @@ import isCronExpression from './is-cron-expression';
 import assembleBreeJob from './assemble-bree-job';
 import fastq from 'fastq';
 import type { queue, done } from 'fastq';
-import { AddJobArgs, Task } from './types';
+import { AddJobArgs, JobManagerOptions, Task } from './types';
 import Bree from 'bree';
 import Monitor from './Monitor';
 import Store from './Store';
@@ -40,10 +40,11 @@ class JobManager {
   bree: Bree;
   store: Store;
   monitor: Monitor = new Monitor();
+  autostart: boolean;
 
-  constructor() {
+  constructor(opts: JobManagerOptions) {
     this.queue = fastq(this, queueWorker, 1);
-
+    this.autostart = opts.autostart!;
     this.bree = new Bree({
       root: path.join(__dirname, 'jobs'),
       jobs: [{ name: 'worker3', interval: '10s' }],
@@ -53,7 +54,7 @@ class JobManager {
       outputWorkerMetadata: false, //TODO: double check settings
       defaultExtension: process.env.ENABLE_JS ? 'js' : 'ts',
       errorHandler: data => {
-        logger.error(`error: ${JSON.stringify(data)}`);
+        logger.error(`errorHandler: ${JSON.stringify(data)}`);
       },
       // workerMessageHandler: (message: any, workerMetadata: any) => {
       //   TODO: handle message
@@ -61,10 +62,17 @@ class JobManager {
       // },
     });
     Store.init(this.bree);
-    this.bree.start();
+    if (this.autostart) {
+      // start bree automatically.
+      this.bree.start();
+    }
+
     this.store = Store.getInstance();
   }
 
+  async runMigrate() {
+    await this.monitor.migrate();
+  }
   /**
    * By default schedules an "offloaded" job. If `offloaded: true` parameter is set,
    * puts an "inline" immediate job into the queue.

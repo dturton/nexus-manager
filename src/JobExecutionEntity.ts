@@ -12,9 +12,10 @@ export class JobExecution {
   id: UUID & PrimaryKey = uuid();
   createdAt: Date;
   startedAt?: Date;
-  endedAt?: Date;
+  finishedAt?: Date;
   name: string;
   attempts: number = 0;
+  state: Record<any, any> = {};
   correlationId?: UUID;
   input: DatabaseField<{ type: 'jsob' }> = {};
   result: DatabaseField<{ type: 'jsob' }> = {};

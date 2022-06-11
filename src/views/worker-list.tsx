@@ -1,4 +1,4 @@
-import { JobExecution } from '../JobExecution';
+import { JobExecution } from '../JobExecutionEntity';
 import Monitor from '../Monitor';
 
 import { WorkerDetail } from './worker-detail';

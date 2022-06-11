@@ -3,7 +3,7 @@ import { PostgresDatabaseAdapter } from '@deepkit/postgres';
 import { config } from 'dotenv';
 config();
 
-import { JobExecution } from '../JobExecution';
+import { JobExecution } from '../JobExecutionEntity';
 
 class PostgressDatabaseConnection extends Database {
   override name = 'default';

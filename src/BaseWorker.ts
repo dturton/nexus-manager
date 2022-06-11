@@ -1,9 +1,19 @@
 import path from 'path';
 import Monitor from './Monitor';
-import { ResultCode } from './types';
+import { ResultCode, JobContext, JobEvents, JobTypestate } from './types';
 import { parentPort, workerData } from 'worker_threads';
 import logger from './logger';
 import pRetry, { AbortError } from 'p-retry';
+import { waitFor } from 'xstate/lib/waitFor';
+import {
+  createMachine,
+  assign,
+  StateMachine,
+  Typestate,
+  AnyEventObject,
+  EventObject,
+  Interpreter,
+} from 'xstate';
 
 import {
   hooks,
@@ -19,12 +29,95 @@ export default abstract class BaseWorker {
   logger: any;
   monitor: Monitor;
   workerName: any;
+  executionStateMachine: StateMachine<any, any, any, Typestate<any>>;
 
   constructor(filePath: string) {
     this.filePath = filePath;
     this.logger = logger;
     this.workerName = path.basename(filePath, path.extname(filePath));
     this.monitor = new Monitor();
+    this.executionStateMachine = createMachine<
+      JobContext,
+      JobEvents,
+      JobTypestate
+    >({
+      id: 'job',
+      initial: 'created',
+      states: {
+        created: {
+          after: {
+            '500': {
+              target: 'queued',
+            },
+          },
+        },
+        queued: {
+          entry: assign({
+            attempts: context => context.attempts + 1,
+          }),
+          after: {
+            '500': {
+              target: 'running',
+            },
+          },
+        },
+        running: {
+          //@ts-ignore
+          invoke: {
+            src: async () => await this.run(),
+            id: 'runJob',
+            onDone: [
+              {
+                actions: assign({
+                  result: (_context: any, event: { data: any }) => {
+                    return event.data;
+                  },
+                }),
+                target: 'completed',
+              },
+            ],
+            onError: [
+              {
+                actions: assign({
+                  error: (_context: any, event: { data: any }) => {
+                    return event.data;
+                  },
+                }),
+                target: 'failed',
+              },
+            ],
+          },
+          on: {
+            CANCEL: {
+              target: 'cancelled',
+            },
+          },
+        },
+        failed: {
+          always: {
+            cond: 'jobHasAttemptsRemaining',
+            target: 'queued',
+          },
+          on: {
+            RETRY: {
+              target: 'queued',
+            },
+            RESOLVED: {
+              target: 'resolved',
+            },
+          },
+        },
+        completed: {
+          type: 'final',
+        },
+        cancelled: {
+          type: 'final',
+        },
+        resolved: {
+          type: 'final',
+        },
+      },
+    });
 
     if (parentPort) {
       parentPort.once('message', async (message: string) => {
@@ -95,6 +188,19 @@ export default abstract class BaseWorker {
     );
 
     await this.done();
+  }
+
+  async startExecution() {
+    const service = new Interpreter(this.executionStateMachine);
+    await service.start();
+    service.onTransition((state: any) => {
+      console.log(state.value);
+    });
+    await waitFor(service, state => {
+      return state.matches('completed') || state.matches('cancelled');
+    });
+    await this.done();
+    await service.stop();
   }
 
   async doneWithError() {

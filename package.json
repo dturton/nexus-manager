@@ -70,6 +70,7 @@
     "@feathersjs/hooks": "^0.7.4",
     "@headlessui/react": "^1.6.3",
     "@heroicons/react": "^1.0.6",
+    "@keyv/postgres": "^1.2.1",
     "@ladjs/graceful": "^2.0.1",
     "@tryghost/errors": "^1.2.13",
     "bree": "^8.0.3",
@@ -79,11 +80,13 @@
     "dotenv": "^16.0.1",
     "got": "^12.1.0",
     "got-cjs": "^12.0.1",
+    "keyv": "^4.3.0",
     "lodash": "^4.17.21",
     "p-retry": "^4.6.1",
     "p-wait-for": "^3.2.0",
     "pg": "^8.7.3",
     "rxjs": "^7.5.5",
-    "utils-copy-error": "^1.0.1"
+    "utils-copy-error": "^1.0.1",
+    "xstate": "^4.32.1"
   }
 }

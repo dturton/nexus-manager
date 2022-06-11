@@ -1,4 +1,4 @@
-import { JobExecution } from '../JobExecution';
+import { JobExecution } from '../JobExecutionEntity';
 
 export class WorkerDetail {
   constructor(

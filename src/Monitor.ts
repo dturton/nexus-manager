@@ -4,7 +4,7 @@ import { config } from 'dotenv';
 
 config();
 
-import { JobExecution } from './JobExecution';
+import { JobExecution } from './JobExecutionEntity';
 import { ResultCode } from './types';
 export default class Monitor extends Database {
   override name = 'default';
@@ -37,14 +37,14 @@ export default class Monitor extends Database {
     result: any,
     error?: any,
   ) {
-    const endedAt = new Date();
+    const finishedAt = new Date();
     await this.query(JobExecution)
       .filter({
         id: executionId,
       })
       .patchOne({
         resultCode,
-        endedAt,
+        finishedAt,
         error: JSON.stringify(error),
         result,
       });
@@ -56,7 +56,7 @@ export default class Monitor extends Database {
       .find();
     return allRecords.map((record: JobExecution) => {
       let startTime = record.startedAt;
-      let endTime = record.endedAt;
+      let endTime = record.finishedAt;
       let hasError =
         record.resultCode && record.resultCode.indexOf('ERROR') == 0
           ? true
