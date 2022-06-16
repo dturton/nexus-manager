@@ -10,9 +10,12 @@ import {
   assign,
   StateMachine,
   Typestate,
+  ResolveTypegenMeta,
   AnyEventObject,
   EventObject,
   Interpreter,
+  StateSchema,
+  State,
 } from 'xstate';
 
 import {
@@ -29,95 +32,98 @@ export default abstract class BaseWorker {
   logger: any;
   monitor: Monitor;
   workerName: any;
-  executionStateMachine: StateMachine<any, any, any, Typestate<any>>;
+  payload: Record<string, any>;
+  executionStateMachine;
 
   constructor(filePath: string) {
     this.filePath = filePath;
     this.logger = logger;
     this.workerName = path.basename(filePath, path.extname(filePath));
     this.monitor = new Monitor();
-    this.executionStateMachine = createMachine<
-      JobContext,
-      JobEvents,
-      JobTypestate
-    >({
-      id: 'job',
-      initial: 'created',
-      states: {
-        created: {
-          after: {
-            '500': {
-              target: 'queued',
-            },
-          },
-        },
-        queued: {
-          entry: assign({
-            attempts: context => context.attempts + 1,
-          }),
-          after: {
-            '500': {
-              target: 'running',
-            },
-          },
-        },
-        running: {
-          //@ts-ignore
-          invoke: {
-            src: async () => await this.run(),
-            id: 'runJob',
-            onDone: [
-              {
-                actions: assign({
-                  result: (_context: any, event: { data: any }) => {
-                    return event.data;
-                  },
-                }),
-                target: 'completed',
+    (this.payload = workerData.job.worker.workerData),
+      (this.executionStateMachine = createMachine<
+        JobContext,
+        JobEvents,
+        JobTypestate
+      >({
+        id: 'job',
+        initial: 'created',
+        states: {
+          created: {
+            after: {
+              '500': {
+                target: 'queued',
               },
-            ],
-            onError: [
-              {
-                actions: assign({
-                  error: (_context: any, event: { data: any }) => {
-                    return event.data;
-                  },
-                }),
-                target: 'failed',
+            },
+          },
+          queued: {
+            type: 'atomic',
+            entry: assign({
+              attempts: context => context.attempts + 1,
+            }),
+            after: {
+              '500': {
+                target: 'running',
               },
-            ],
-          },
-          on: {
-            CANCEL: {
-              target: 'cancelled',
             },
           },
-        },
-        failed: {
-          always: {
-            cond: 'jobHasAttemptsRemaining',
-            target: 'queued',
-          },
-          on: {
-            RETRY: {
-              target: 'queued',
+          running: {
+            type: 'atomic',
+            //@ts-ignore
+            invoke: {
+              src: async () => await this.run(),
+              id: 'runJob',
+              onDone: [
+                {
+                  actions: assign({
+                    result: (_context: any, event: { data: any }) => {
+                      return event.data;
+                    },
+                  }),
+                  target: 'completed',
+                },
+              ],
+              onError: [
+                {
+                  target: 'failed',
+                  actions: assign({
+                    error: (context: any, event: { data: any }) => event.data,
+                  }),
+                },
+              ],
             },
-            RESOLVED: {
-              target: 'resolved',
+            on: {
+              CANCEL: {
+                target: 'cancelled',
+              },
             },
           },
+          failed: {
+            type: 'atomic',
+            // always: {
+            //   cond: 'jobHasAttemptsRemaining',
+            //   target: 'queued',
+            // },
+            on: {
+              RETRY: {
+                target: 'queued',
+              },
+              RESOLVED: {
+                target: 'resolved',
+              },
+            },
+          },
+          completed: {
+            type: 'final',
+          },
+          cancelled: {
+            type: 'final',
+          },
+          resolved: {
+            type: 'final',
+          },
         },
-        completed: {
-          type: 'final',
-        },
-        cancelled: {
-          type: 'final',
-        },
-        resolved: {
-          type: 'final',
-        },
-      },
-    });
+      }));
 
     if (parentPort) {
       parentPort.once('message', async (message: string) => {
@@ -145,15 +151,12 @@ export default abstract class BaseWorker {
   };
 
   handle_before = async (context: HookContextData) => {
-    const dataArg = workerData.job.worker.workerData
-      ? workerData.job.worker.workerData
-      : {};
-    const executionId = await this.monitor.startExecution(
+    const executionId = await this.monitor.logStartExecution(
       workerData.job.name,
-      dataArg,
+      this.payload,
     );
     workerData.job.worker.workerData = {
-      ...dataArg,
+      ...this.payload,
       executionId,
     };
   };
@@ -191,15 +194,36 @@ export default abstract class BaseWorker {
   }
 
   async startExecution() {
+    this.executionStateMachine = this.executionStateMachine.withContext({
+      ...this.executionStateMachine.context,
+      payload: workerData.job.worker.workerData,
+    });
     const service = new Interpreter(this.executionStateMachine);
     await service.start();
-    service.onTransition((state: any) => {
-      console.log(state.value);
-    });
+    service.onTransition(
+      async (state: State<JobContext, JobEvents, any, JobTypestate, any>) => {
+        if (state.changed) {
+          this.logger.info(state.value);
+          if (!this.executionId) {
+            //if not execution's yet, then this is the first time we are running
+            this.executionId = await this.monitor.logStartExecution(
+              this.workerName,
+              this.payload,
+            );
+          } else {
+            await this.monitor.updateExecution(this.executionId, state);
+          }
+        }
+      },
+    );
     await waitFor(service, state => {
-      return state.matches('completed') || state.matches('cancelled');
+      return (
+        state.matches('completed') ||
+        state.matches('cancelled') ||
+        state.matches('failed')
+      );
     });
-    await this.done();
+    // await this.done();
     await service.stop();
   }
 

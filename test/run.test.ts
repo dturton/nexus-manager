@@ -2,10 +2,11 @@ import FakeTimers from '@sinonjs/fake-timers';
 import JobManager from '../src/JobManager';
 import path from 'path';
 
+jest.setTimeout(25000);
 describe('RunJob', function () {
   it('interpreter', async () => {
     const jobManager = new JobManager({ autostart: false });
-    // await jobManager.runMigrate();
+    //await jobManager.runMigrate();
     const clock = FakeTimers.install({
       now: Date.now(),
       shouldClearNativeTimers: true,
@@ -15,7 +16,7 @@ describe('RunJob', function () {
     await jobManager.addJob({
       job: jobPath,
       name: 'job-now',
-      data: { info: 'test' },
+      payload: { info: 'test' },
     });
 
     expect(typeof jobManager.bree.timeouts.get('job-now')).toEqual('object');
@@ -26,7 +27,6 @@ describe('RunJob', function () {
     const promise = new Promise<void>((resolve, reject) => {
       jobManager.bree.workers.get('job-now')!.on('error', reject);
       jobManager.bree.workers.get('job-now')!.on('message', message => {
-        console.log(message);
         if (message === 'done') {
           resolve();
         }
@@ -38,6 +38,5 @@ describe('RunJob', function () {
     expect(jobManager.bree.workers.get('job-now')).toBeUndefined();
 
     clock.uninstall();
-    console.log('file is done');
   });
 });

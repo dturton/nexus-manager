@@ -53,9 +53,9 @@ class JobManager {
       hasSeconds: true, // precision is needed to avoid task overlaps after immediate execution
       outputWorkerMetadata: false, //TODO: double check settings
       defaultExtension: process.env.ENABLE_JS ? 'js' : 'ts',
-      errorHandler: data => {
-        logger.error(`errorHandler: ${JSON.stringify(data)}`);
-      },
+      // errorHandler: (error, workerMetadata) => {
+      //   logger.error(`errorHandler: ${JSON.stringify(workerMetadata)}`);
+      // },
       // workerMessageHandler: (message: any, workerMetadata: any) => {
       //   TODO: handle message
       //   console.info(`message: ${JSON.stringify(message, null, 2)}`);
@@ -81,12 +81,12 @@ class JobManager {
    * @prop {Function | String} job.job - function or path to a module defining a job
    * @prop {Object} [job.data] - data to be passed into the job
    */
-  async runNow({ job, data = {} }: AddJobArgs) {
+  async runNow({ job, payload = {} }: AddJobArgs) {
     try {
       if (typeof job === 'function') {
-        return await job(data);
+        return await job(payload);
       } else if (typeof job === 'string') {
-        return await require(job)(data);
+        return await require(job)(payload);
       }
     } catch (err) {
       // NOTE: each job should be written in a safe way and handle all errors internally
@@ -98,15 +98,15 @@ class JobManager {
   }
 
   /* Adding a job to the queue. */
-  async runInQueue({ job, data = {} }: AddJobArgs) {
+  async runInQueue({ job, payload = {} }: AddJobArgs) {
     logger.info('Adding one off inline job to the queue');
 
     this.queue.push(async () => {
       try {
         if (typeof job === 'function') {
-          return await job(data);
+          return await job(payload);
         } else if (typeof job === 'string') {
-          return await require(job)(data);
+          return await require(job)(payload);
         }
       } catch (err) {
         // NOTE: each job should be written in a safe way and handle all errors internally
@@ -131,7 +131,7 @@ class JobManager {
     name,
     at,
     job,
-    data = {},
+    payload = {},
     offloaded = true,
   }: AddJobArgs): Promise<unknown | Worker> {
     if (offloaded) {
@@ -173,7 +173,7 @@ class JobManager {
         logger.info(`Scheduling job ${name} to run immediately`);
       }
 
-      const breeJob = assembleBreeJob(at, job, data, name);
+      const breeJob = assembleBreeJob(at, job, payload, name);
       this.bree.add(breeJob);
 
       this.bree.start(name);
@@ -182,11 +182,10 @@ class JobManager {
   }
 
   async runJob(jobName: string) {
-    console.log(jobName);
     try {
       await this.bree.run(jobName);
     } catch (error) {
-      console.log(error);
+      throw error;
     }
   }
 

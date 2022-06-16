@@ -21,7 +21,7 @@ export type AddJobArgs = {
   name?: string;
   at?: string | Date;
   job: Task | string;
-  data?: any;
+  payload?: any;
   offloaded?: boolean;
 };
 
@@ -32,6 +32,7 @@ export interface Job {
 export interface JobContext {
   attempts: number;
   payload?: any;
+  path: string;
 }
 
 export type JobManagerOptions = {
@@ -44,22 +45,34 @@ export type JobEvents =
 
 export type JobTypestate =
   | {
-      value: 'idle';
+      value: 'created';
       context: JobContext & {
         job: undefined;
         error: undefined;
       };
     }
   | {
-      value: 'loading';
+      value: 'queued';
       context: JobContext;
     }
   | {
-      value: 'success';
+      value: 'running';
       context: JobContext & { user: Job; error: undefined };
     }
   | {
-      value: 'failure';
+      value: 'completed';
+      context: JobContext & { user: Job; error: undefined };
+    }
+  | {
+      value: 'failed';
+      context: JobContext & { user: undefined; error: string };
+    }
+  | {
+      value: 'cancelled';
+      context: JobContext & { user: undefined; error: string };
+    }
+  | {
+      value: 'resolved';
       context: JobContext & { user: undefined; error: string };
     };
 

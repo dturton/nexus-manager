@@ -16,11 +16,19 @@ export default class Monitor extends Database {
     super(adapter, [JobExecution]);
   }
 
-  async startExecution(jobName: string, input: unknown) {
+  async logStartExecution(jobName: string, input: unknown) {
     const newExecution = new JobExecution(jobName, input);
     await this.persist(newExecution);
     await this.incrementAttempts(newExecution.id);
     return newExecution.id;
+  }
+
+  async updateExecution(executionId: string, state: any) {
+    return await this.query(JobExecution)
+      .filter({
+        id: executionId,
+      })
+      .patchOne({ state, resultCode: state.value });
   }
 
   async incrementAttempts(executionId: any) {

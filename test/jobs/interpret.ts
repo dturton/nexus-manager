@@ -5,23 +5,21 @@ import { client } from '../../src/http/client';
 
 class Worker1 extends BaseWorker {
   public async run() {
-    if (parentPort) parentPort.postMessage('started');
+    const payload = workerData.job.worker.workerData;
+    try {
+      const { data } = await client
+        .post('/echo', {
+          json: payload,
+          retry: {
+            limit: 0,
+          },
+        })
+        .json();
 
-    const { data } = await client
-      .post('echo', {
-        json: {
-          hello: 'nexus',
-        },
-        timeout: {
-          request: 1000,
-        },
-        retry: {
-          limit: 0,
-        },
-      })
-      .json();
-    console.log(data);
-    return data;
+      return data;
+    } catch (error) {
+      throw error;
+    }
   }
 }
 

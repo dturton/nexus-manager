@@ -15,18 +15,19 @@ export class JobExecution {
   finishedAt?: Date;
   name: string;
   attempts: number = 0;
-  state: Record<any, any> = {};
+  state: Record<any, any>;
   correlationId?: UUID;
   input: DatabaseField<{ type: 'jsob' }> = {};
-  result: DatabaseField<{ type: 'jsob' }> = {};
+  result?: DatabaseField<{ type: 'jsob' }>;
   error?: string;
-  resultCode: string = 'CREATED';
+  resultCode: string = 'created';
 
-  constructor(name: string, input: any) {
+  constructor(name: string, input: any, state?: Record<any, any>) {
     const executionDate = new Date();
     this.createdAt = executionDate;
     this.startedAt = executionDate; // TODO: change this if started at is needed
     this.name = name;
     this.input = input;
+    this.state = state || {};
   }
 }

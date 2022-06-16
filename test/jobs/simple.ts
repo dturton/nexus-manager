@@ -5,17 +5,12 @@ import { client } from '../../src/http/client';
 
 class Worker1 extends BaseWorker {
   public async run() {
-    const input = workerData.job.worker.workerData;
+    const payload = workerData.job.worker.workerData;
     if (parentPort) parentPort.postMessage('started');
 
     const { data } = await client
       .post('echo', {
-        json: {
-          hello: 'nexus',
-        },
-        timeout: {
-          request: 1000,
-        },
+        json: payload,
         retry: {
           limit: 0,
         },

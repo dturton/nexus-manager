@@ -26,7 +26,7 @@ describe('Job Manager', function () {
 
         const response = await jobManager.runNow({
           job: spy,
-          data: { info: 'test' },
+          payload: { info: 'test' },
         });
 
         expect(spy.called).toBe(true);
@@ -41,7 +41,7 @@ describe('Job Manager', function () {
         await jobManager.runInQueue({
           name: 'inline-job-queue',
           job: spy,
-          data: { info: 'test' },
+          payload: { info: 'test' },
         });
 
         expect(jobManager.queue.idle()).toBe(false);
@@ -76,7 +76,7 @@ describe('Job Manager', function () {
         await jobManager.addJob({
           job: jobPath,
           name: 'job-now-error',
-          data: { info: 'test' },
+          payload: { info: 'test' },
         });
 
         clock.tick(1);
@@ -109,7 +109,7 @@ describe('Job Manager', function () {
         await jobManager.addJob({
           job: jobPath,
           name: 'job-now',
-          data: { info: 'test' },
+          payload: { info: 'test' },
         });
 
         expect(typeof jobManager.bree.timeouts.get('job-now')).toEqual(
@@ -146,7 +146,7 @@ describe('Job Manager', function () {
           at: timeInTenSeconds,
           job: jobPath,
           name: 'job-in-ten',
-          data: { info: 'test' },
+          payload: { info: 'test' },
         });
 
         await clock.nextAsync();
@@ -178,7 +178,7 @@ describe('Job Manager', function () {
         await jobManager.addJob({
           job: jobPath,
           name: 'job-now',
-          data: { info: 'test' },
+          payload: { info: 'test' },
         });
 
         expect(typeof jobManager.bree.timeouts.get('job-now')).toEqual(
