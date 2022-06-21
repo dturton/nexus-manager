@@ -7,11 +7,4 @@ export const client = got.extend({
   headers: {
     'x-lorem': 'impsum',
   },
-
-  handlers: [
-    (options, next) => {
-      Error.captureStackTrace(options.context);
-      return next(options);
-    },
-  ],
 });

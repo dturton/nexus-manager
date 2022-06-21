@@ -41,7 +41,7 @@ export default class Monitor extends Database {
 
   async endExecution(
     executionId: any,
-    resultCode: ResultCode,
+    resultCode: string,
     result: any,
     error?: any,
   ) {
@@ -53,8 +53,8 @@ export default class Monitor extends Database {
       .patchOne({
         resultCode,
         finishedAt,
-        error: JSON.stringify(error),
         result,
+        error: JSON.stringify(error),
       });
   }
 

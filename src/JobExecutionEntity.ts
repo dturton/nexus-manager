@@ -5,6 +5,7 @@ import {
   uuid,
   DatabaseField,
   AutoIncrement,
+  Postgres,
 } from '@deepkit/type';
 
 @entity.name('jobsexecutions')
@@ -18,7 +19,7 @@ export class JobExecution {
   state: Record<any, any>;
   correlationId?: UUID;
   input: DatabaseField<{ type: 'jsob' }> = {};
-  result?: DatabaseField<{ type: 'jsob' }>;
+  result?: string & Postgres<{ type: 'jsob' }>;
   error?: string;
   resultCode: string = 'created';
 

@@ -6,12 +6,10 @@ export enum HttpStatusCode {
 }
 
 export class CustomError extends Error {
-  isOperational: boolean;
-  constructor(isOperational: boolean = true, ...params: any[]) {
+  constructor(...params: any[]) {
     super(...params, { cause: 'third-party' });
     this.name = this.constructor.name;
-    this.isOperational = isOperational;
-    Error.captureStackTrace(this);
+    CustomError.captureStackTrace(this, this.constructor);
     Object.setPrototypeOf(this, CustomError.prototype);
   }
 }
@@ -23,16 +21,19 @@ export class AppError extends CustomError {
   }
 }
 
-export class Api404Error extends CustomError {
+export class HttpApiError extends CustomError {
   statusCode: HttpStatusCode;
+  url: string;
+  method: string;
   constructor(
-    statusCode = HttpStatusCode.NOT_FOUND,
-    message = 'Not found.',
-    isOperational = true,
-    cause: string = '',
+    statusCode: HttpStatusCode,
+    url: string,
+    method: string,
+    error: Error,
   ) {
-    super(isOperational, cause);
+    super();
     this.statusCode = statusCode;
-    this.message = message;
+    this.url = url;
+    this.method = method;
   }
 }

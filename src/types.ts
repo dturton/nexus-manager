@@ -30,6 +30,7 @@ export interface Job {
 }
 
 export interface JobContext {
+  result: Record<string, any>;
   attempts: number;
   payload?: any;
   path: string;

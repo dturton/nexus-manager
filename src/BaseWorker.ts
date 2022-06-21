@@ -26,6 +26,8 @@ import {
   HookContext,
 } from '@feathersjs/hooks';
 
+import { RequestError } from 'got-cjs';
+
 export default abstract class BaseWorker {
   filePath: string;
   executionId: any;
@@ -87,7 +89,10 @@ export default abstract class BaseWorker {
                 {
                   target: 'failed',
                   actions: assign({
-                    error: (context: any, event: { data: any }) => event.data,
+                    error: (context: any, event: { data: RequestError }) => {
+                      console.log(event.data.code);
+                      return event.data.code;
+                    },
                   }),
                 },
               ],
@@ -209,6 +214,12 @@ export default abstract class BaseWorker {
             this.executionId = await this.monitor.logStartExecution(
               this.workerName,
               this.payload,
+            );
+          } else if (state.matches('completed')) {
+            await this.monitor.endExecution(
+              this.executionId,
+              state.value as string,
+              state.context.result,
             );
           } else {
             await this.monitor.updateExecution(this.executionId, state);

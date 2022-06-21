@@ -1,4 +1,5 @@
 const { parentPort, workerData } = require('worker_threads');
+import { CustomError } from '@deepkit/core';
 import BaseWorker from '../../src/BaseWorker';
 
 import { client } from '../../src/http/client';
@@ -8,7 +9,7 @@ class Worker1 extends BaseWorker {
     const payload = workerData.job.worker.workerData;
     try {
       const { data } = await client
-        .post('/echo', {
+        .post('echo', {
           json: payload,
           retry: {
             limit: 0,
