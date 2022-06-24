@@ -1,13 +1,11 @@
 import { App } from '@deepkit/app';
 import { FrameworkModule } from '@deepkit/framework';
 import Monitor from './Monitor';
-import Store from './Store';
+
 import IndexPage from './views/index';
 import JobManager from './JobManager';
 import { http, HttpQuery } from '@deepkit/http';
 import { MinLength } from '@deepkit/type';
-
-const manager = new JobManager();
 
 export class TestPage {
   constructor(private manager: JobManager) {}
@@ -35,12 +33,7 @@ export class TestPage {
 
 new App({
   controllers: [IndexPage, TestPage],
-  providers: [
-    TestPage,
-    Monitor,
-    JobManager,
-    { provide: Store, useValue: Store.init(manager.bree) },
-  ],
+  providers: [TestPage, Monitor, JobManager],
   imports: [
     new FrameworkModule({
       publicDir: 'public',
