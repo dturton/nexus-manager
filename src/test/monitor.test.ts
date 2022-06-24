@@ -1,4 +1,4 @@
-import { CustomError } from '../src/errors';
+import { CustomError } from '../errors';
 
 describe('Monitor', () => {
   it('getExecutions', () => {

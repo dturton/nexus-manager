@@ -1,5 +1,5 @@
 import FakeTimers from '@sinonjs/fake-timers';
-import JobManager from '../src/JobManager';
+import JobManager from '../JobManager';
 import path from 'path';
 
 jest.setTimeout(25000);

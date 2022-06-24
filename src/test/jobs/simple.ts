@@ -1,7 +1,7 @@
 const { parentPort, workerData } = require('worker_threads');
-import BaseWorker from '../../src/BaseWorker';
+import BaseWorker from '../../BaseWorker';
 
-import { client } from '../../src/http/client';
+import { client } from '../../http/client';
 
 class Worker1 extends BaseWorker {
   public async run() {

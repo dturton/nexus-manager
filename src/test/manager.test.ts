@@ -1,7 +1,7 @@
 import delay from 'delay';
 import sinon from 'sinon';
 import FakeTimers from '@sinonjs/fake-timers';
-import JobManager from '../src/JobManager';
+import JobManager from '../JobManager';
 import path from 'path';
 
 const sandbox = sinon.createSandbox();

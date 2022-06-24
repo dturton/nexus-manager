@@ -1,5 +1,5 @@
 const { parentPort, workerData } = require('worker_threads');
-import BaseWorker from '../../src/BaseWorker';
+import BaseWorker from '../../BaseWorker';
 
 class ErrorWorker extends BaseWorker {
   public async run() {

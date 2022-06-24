@@ -1,4 +1,4 @@
-import { CustomError } from '../src/errors';
+import { CustomError } from '../errors';
 
 describe('HttpRequestError', () => {
   it('should be a function', () => {
