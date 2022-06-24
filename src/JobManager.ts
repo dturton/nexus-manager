@@ -53,13 +53,6 @@ class JobManager {
       hasSeconds: true, // precision is needed to avoid task overlaps after immediate execution
       outputWorkerMetadata: false, //TODO: double check settings
       defaultExtension: process.env.ENABLE_JS ? 'js' : 'ts',
-      // errorHandler: (error, workerMetadata) => {
-      //   logger.error(`errorHandler: ${JSON.stringify(workerMetadata)}`);
-      // },
-      // workerMessageHandler: (message: any, workerMetadata: any) => {
-      //   TODO: handle message
-      //   console.info(`message: ${JSON.stringify(message, null, 2)}`);
-      // },
     });
     Store.init(this.bree);
     if (this.autostart) {

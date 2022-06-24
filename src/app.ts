@@ -33,7 +33,11 @@ export class TestPage {
 
 new App({
   controllers: [IndexPage, TestPage],
-  providers: [TestPage, Monitor, JobManager],
+  providers: [
+    TestPage,
+    Monitor,
+    { provide: JobManager, useValue: new JobManager({}) },
+  ],
   imports: [
     new FrameworkModule({
       publicDir: 'public',

@@ -5,7 +5,7 @@ import path from 'path';
 jest.setTimeout(25000);
 describe('RunJob', function () {
   it('interpreter', async () => {
-    const jobManager = new JobManager({});
+    const jobManager = new JobManager({ autostart: true });
     //await jobManager.runMigrate();
     const clock = FakeTimers.install({
       now: Date.now(),
