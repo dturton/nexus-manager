@@ -18,5 +18,5 @@
   "reflection": true,
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules/**"],
-  "compileOnSave": false
+  "compileOnSave": true
 }
