@@ -11,7 +11,6 @@ import { AddJobArgs, JobManagerOptions, Task } from './types';
 import Bree from 'bree';
 import Store from './Store';
 import { Worker } from 'worker_threads';
-import { AppError, CustomError } from './errors';
 Bree.extend(require('@breejs/ts-worker'));
 
 const debug = require('debug')('nexus');
@@ -84,25 +83,6 @@ class JobManager {
     });
   }
 
-  /* Adding a job to the queue. */
-  async runInQueue({ job, payload = {} }: AddJobArgs) {
-    logger.info('Adding one off inline job to the queue');
-
-    this.queue.push(async () => {
-      try {
-        if (typeof job === 'function') {
-          return await job(payload);
-        } else if (typeof job === 'string') {
-          return await require(job)(payload);
-        }
-      } catch (err) {
-        // NOTE: each job should be written in a safe way and handle all errors internally
-        //       if the error is caught here jobs implementation should be changed
-        throw new AppError('Job failed');
-      }
-    }, handler);
-  }
-
   async addJob({
     name,
     at,
@@ -118,7 +98,7 @@ class JobManager {
         if (typeof job === 'string') {
           name = path.parse(job).name;
         } else {
-          throw new AppError(
+          throw new Error(
             'Name parameter should be present if job is a function',
           );
         }
@@ -135,7 +115,7 @@ class JobManager {
           (schedule.error && schedule.error !== -1) ||
           schedule.schedules.length === 0
         ) {
-          throw new AppError('Invalid schedule format');
+          throw new Error('Invalid schedule format');
         }
 
         logger.info(
