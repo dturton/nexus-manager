@@ -2,7 +2,7 @@
   "name": "nexus-manager",
   "version": "1.0.0",
   "description": "d",
-  "repository": "https://github.com/dturton/node-durable-task",
+  "repository": "https://github.com/dturton/nexus-manager",
   "license": "MIT",
   "exports": "./dist/index.js",
   "scripts": {
