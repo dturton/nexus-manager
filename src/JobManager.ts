@@ -9,7 +9,6 @@ import fastq from 'fastq';
 import type { queue, done } from 'fastq';
 import { AddJobArgs, JobManagerOptions, Task } from './types';
 import Bree from 'bree';
-import Monitor from './Monitor';
 import Store from './Store';
 import { Worker } from 'worker_threads';
 import { AppError, CustomError } from './errors';
@@ -31,7 +30,7 @@ const handler = (error: any, result: any) => {
     // TODO: this handler should not be throwing as this blocks the queue
     // throw error;
   }
-  // Can potentially standardize the result here
+
   return result;
 };
 
@@ -39,7 +38,6 @@ class JobManager {
   queue: queue;
   bree: Bree;
   store: Store;
-  monitor: Monitor = new Monitor();
   autostart: boolean;
 
   constructor(opts: JobManagerOptions) {
@@ -47,12 +45,27 @@ class JobManager {
     this.autostart = opts.autostart!;
     this.bree = new Bree({
       root: path.join(__dirname, 'jobs'),
-      jobs: [{ name: 'worker3', interval: '10s' }],
+      jobs: [{ name: 'worker3', interval: '2s' }],
       logger: false,
       removeCompleted: false,
       hasSeconds: true, // precision is needed to avoid task overlaps after immediate execution
-      outputWorkerMetadata: false, //TODO: double check settings
+      outputWorkerMetadata: true, //TODO: double check settings
       defaultExtension: process.env.ENABLE_JS ? 'js' : 'ts',
+      errorHandler: (error, workerMetadata) => {
+        // workerMetadata will be populated with extended worker information only if
+        // Bree instance is initialized with parameter `workerMetadata: true`
+        if (workerMetadata.threadId) {
+          logger.info(
+            `There was an error while running a worker ${workerMetadata.name} with thread ID: ${workerMetadata.threadId}`,
+          );
+        } else {
+          logger.info(
+            `There was an error while running a worker ${workerMetadata.name}`,
+          );
+        }
+
+        logger.error(error);
+      },
     });
     Store.init(this.bree);
     if (this.autostart) {
@@ -61,33 +74,14 @@ class JobManager {
     }
 
     this.store = Store.getInstance();
-  }
 
-  async runMigrate() {
-    await this.monitor.migrate();
-  }
-  /**
-   * By default schedules an "offloaded" job. If `offloaded: true` parameter is set,
-   * puts an "inline" immediate job into the queue.
-   *
-   * @param {Object} job - job options
-   * @prop {Function | String} job.job - function or path to a module defining a job
-   * @prop {Object} [job.data] - data to be passed into the job
-   */
-  async runNow({ job, payload = {} }: AddJobArgs) {
-    try {
-      if (typeof job === 'function') {
-        return await job(payload);
-      } else if (typeof job === 'string') {
-        return await require(job)(payload);
-      }
-    } catch (err) {
-      // NOTE: each job should be written in a safe way and handle all errors internally
-      //       if the error is caught here jobs implementation should be changed
-      logger.error(new Error('Job failed'));
+    this.bree.on('worker created', name => {
+      console.log('worker created', name);
+    });
 
-      throw err;
-    }
+    this.bree.on('worker deleted', name => {
+      console.log('worker deleted', name);
+    });
   }
 
   /* Adding a job to the queue. */
@@ -109,17 +103,6 @@ class JobManager {
     }, handler);
   }
 
-  /**
-   * By default schedules an "offloaded" job. If `offloaded: true` parameter is set,
-   * puts an "inline" immediate job into the queue.
-   *
-   * @param {Object} job - job options
-   * @prop {Function | String} job.job - function or path to a module defining a job
-   * @prop {String} [job.name] - unique job name, if not provided takes function name or job script filename
-   * @prop {String | Date} [job.at] - Date, cron or human readable schedule format. Manage will do immediate execution if not specified. Not supported for "inline" jobs
-   * @prop {Object} [job.data] - data to be passed into the job
-   * @prop {Boolean} [job.offloaded] - creates an "offloaded" job running in a worker thread by default. If set to "false" runs an "inline" job on the same event loop
-   */
   async addJob({
     name,
     at,
@@ -167,10 +150,10 @@ class JobManager {
       }
 
       const breeJob = assembleBreeJob(at, job, payload, name);
-      this.bree.add(breeJob);
+      await this.bree.add({ interval: '1s', ...breeJob });
 
-      this.bree.start(name);
-      return this.bree.workers.get(name)!;
+      await this.bree.run(name);
+      return this.bree.config.jobs;
     }
   }
 
@@ -182,16 +165,6 @@ class JobManager {
     }
   }
 
-  /**
-   * Removes an "offloaded" job from scheduled jobs queue.
-   * It's NOT yet possible to remove "inline" jobs (will be possible when scheduling is added https://github.com/breejs/bree/issues/68).
-   * The method will throw an Error if job with provided name does not exist.
-   *
-   * NOTE: current implementation does not guarantee running job termination
-   *       for details see https://github.com/breejs/bree/pull/64
-   *
-   * @param {String} name - job name
-   */
   async removeJob(name: any) {
     await this.bree.remove(name);
   }

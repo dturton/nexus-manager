@@ -19,10 +19,8 @@ describe('RunJob', function () {
       payload: { info: 'test' },
     });
 
-    expect(typeof jobManager.bree.timeouts.get('job-now')).toEqual('object');
-
     // allow scheduler to pick up the job
-    clock.tick(1);
+    clock.tick(3);
 
     const promise = new Promise<void>((resolve, reject) => {
       jobManager.bree.workers.get('job-now')!.on('error', reject);

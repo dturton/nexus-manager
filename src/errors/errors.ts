@@ -375,8 +375,6 @@ const jobErrors = {
   },
 };
 
-export jobErrors;
-
 const ghostErrorsWithBase = Object.assign({}, jobErrors, {
   JobError: JobError,
 });
