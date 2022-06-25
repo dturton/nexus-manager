@@ -1,6 +1,6 @@
 {
   "name": "nexus-manager",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "d",
   "repository": "https://github.com/dturton/nexus-manager",
   "license": "MIT",
@@ -72,6 +72,7 @@
     "@keyv/postgres": "^1.2.1",
     "@ladjs/graceful": "^2.0.1",
     "@tryghost/errors": "^1.2.13",
+    "axios": "^0.27.2",
     "bree": "^8.0.3",
     "config": "^3.3.7",
     "cron-validate": "^1.4.3",

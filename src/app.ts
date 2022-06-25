@@ -44,7 +44,6 @@ export class TestPage {
       payload: { info: 'test' },
     });
 
-    await delay(5000);
     return await new Promise<void>((resolve, reject) => {
       this.manager.bree.workers.get('interpret')!.on('error', reject);
       this.manager.bree.workers.get('interpret')!.on('message', message => {

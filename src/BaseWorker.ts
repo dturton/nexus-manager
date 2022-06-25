@@ -20,7 +20,7 @@ export default abstract class BaseWorker {
     this.logger = logger;
     this.monitor = new Monitor();
     this.workerName = path.basename(filePath, path.extname(filePath));
-    this.payload = workerData.job.worker.workerData;
+    this.payload = {}; //TODO: FIX ME
     this.executionStateMachine = createMachine<
       JobContext,
       JobEvents,
@@ -118,7 +118,7 @@ export default abstract class BaseWorker {
     this.logger.info('started');
     this.executionStateMachine = this.executionStateMachine.withContext({
       ...this.executionStateMachine.context,
-      payload: workerData.job.worker.workerData,
+      payload: { data: 'workerData.job.worker.workerData' },
     });
     const service = new Interpreter(this.executionStateMachine);
     await service.start();
