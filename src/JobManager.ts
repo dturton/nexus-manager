@@ -44,7 +44,7 @@ class JobManager {
     this.autostart = opts.autostart!;
     this.bree = new Bree({
       root: path.join(__dirname, 'jobs'),
-      jobs: [{ name: 'worker3', interval: '15s' }],
+      jobs: [], //{ name: 'cancelOrders', interval: '15s' }
       logger: false,
       removeCompleted: true,
       hasSeconds: true, // precision is needed to avoid task overlaps after immediate execution
@@ -133,7 +133,7 @@ class JobManager {
       const breeJob = assembleBreeJob(at, job, payload, name);
       await this.bree.add({ interval: '1s', ...breeJob });
 
-      await this.bree.run(name);
+      await this.bree.start(name);
       return this.bree.config.jobs;
     }
   }

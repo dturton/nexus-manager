@@ -5,7 +5,7 @@ class Worker1 extends BaseWorker {
   public async run() {
     try {
       const { data } = await axios.get(
-        'https://jsonplaceholder.typicode.com/todos/1',
+        'https://www.berkeyfilters.com/products/travel-berkey.json',
       );
       return data;
     } catch (error) {
@@ -16,5 +16,5 @@ class Worker1 extends BaseWorker {
 
 (async () => {
   let worker = new Worker1(__filename);
-  return await worker.startExecution();
+  await worker.startExecution();
 })();

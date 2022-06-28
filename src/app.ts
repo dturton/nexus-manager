@@ -37,30 +37,30 @@ export class TestPage {
 
   @http.GET('/testJob').name('testJob').description('Test a job')
   async testJob() {
-    const jobPath = path.resolve(__dirname, './jobs/worker3.ts');
+    const jobPath = path.resolve(__dirname, './jobs/ondemand.ts');
+    const cancelOrdersPath = path.resolve(__dirname, './jobs/cancelOrders.ts');
+    await this.manager.addJob({
+      job: cancelOrdersPath,
+      name: 'cancelOrders',
+      payload: { info: 'test' },
+      at: 'every 1 second',
+    });
     const worker = await this.manager.addJob({
       job: jobPath,
-      name: 'interpret',
+      name: 'ondemand',
       payload: { info: 'test' },
     });
 
     await new Promise<void>((resolve, reject) => {
-      this.manager.bree.workers.get('interpret')!.on('error', reject);
-      this.manager.bree.workers.get('interpret')!.on('message', message => {
+      this.manager.bree.workers.get('ondemand')!.on('error', reject);
+      this.manager.bree.workers.get('ondemand')!.on('message', message => {
         console.log(message);
         if (message === 'done') {
           resolve();
         }
       });
     });
-  }
-
-  @http.GET('/addJob').name('runJob').description('Runs a job')
-  async addJob(name: HttpQuery<string> & MinLength<3>) {
-    const res = await this.manager.addJob({
-      job: name,
-    });
-    return res;
+    return worker;
   }
 }
 
