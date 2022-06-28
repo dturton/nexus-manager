@@ -5,7 +5,7 @@ import { config } from 'dotenv';
 config();
 
 import { JobExecution } from './JobExecutionEntity';
-import { ResultCode } from './types';
+
 export default class Monitor extends Database {
   override name = 'default';
 

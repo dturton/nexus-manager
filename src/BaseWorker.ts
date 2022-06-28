@@ -20,7 +20,7 @@ export default abstract class BaseWorker {
     this.logger = logger;
     this.monitor = new Monitor();
     this.workerName = path.basename(filePath, path.extname(filePath));
-    this.payload = {}; //TODO: FIX ME
+    this.payload = workerData.job.worker.workerData;
     this.executionStateMachine = createMachine<
       JobContext,
       JobEvents,
@@ -52,7 +52,7 @@ export default abstract class BaseWorker {
             onDone: [
               {
                 actions: assign({
-                  result: (_context: unknown, event: { data: unknown }) => {
+                  result: (context: unknown, event) => {
                     return event.data;
                   },
                 }),
@@ -118,11 +118,11 @@ export default abstract class BaseWorker {
     this.logger.info('started');
     this.executionStateMachine = this.executionStateMachine.withContext({
       ...this.executionStateMachine.context,
-      payload: { data: 'workerData.job.worker.workerData' },
+      payload: workerData.job.worker.workerData,
     });
     const service = new Interpreter(this.executionStateMachine);
     await service.start();
-    service.onTransition(
+    await service.onTransition(
       //@ts-ignore
       async (state: State<JobContext, JobEvents, any, JobTypestate, any>) => {
         if (state.changed) {
@@ -133,12 +133,6 @@ export default abstract class BaseWorker {
               this.workerName,
               this.payload,
             );
-          } else if (state.matches('completed')) {
-            await this.monitor.endExecution(
-              this.executionId,
-              state.value as string,
-              state.context.result,
-            );
           } else {
             await this.monitor.updateExecution(this.executionId, state);
           }
@@ -146,15 +140,21 @@ export default abstract class BaseWorker {
       },
     );
 
-    await waitFor(service, state => {
+    const finishedState = await waitFor(service, state => {
       return (
         state.matches('completed') ||
         state.matches('cancelled') ||
         state.matches('failed')
       );
     });
-    await this.done();
+
+    await this.monitor.endExecution(
+      this.executionId,
+      finishedState.value as string,
+      JSON.stringify(await finishedState.context),
+    );
     await service.stop();
+    await this.done();
   }
 
   async doneWithError() {
