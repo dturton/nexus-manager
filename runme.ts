@@ -5,7 +5,7 @@ import path from 'path';
 (async () => {
   const jobManager = new JobManager({ autostart: true });
 
-  const jobPath = path.resolve(__dirname, 'src/jobs/machine.ts');
+  const jobPath = path.resolve(__dirname, 'src/jobs/worker3.ts');
 
   await jobManager.addJob({
     job: jobPath,

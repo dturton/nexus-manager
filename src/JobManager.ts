@@ -44,9 +44,9 @@ class JobManager {
     this.autostart = opts.autostart!;
     this.bree = new Bree({
       root: path.join(__dirname, 'jobs'),
-      jobs: [{ name: 'worker3', interval: '1s' }],
+      jobs: [{ name: 'worker3', interval: '15s' }],
       logger: false,
-      removeCompleted: false,
+      removeCompleted: true,
       hasSeconds: true, // precision is needed to avoid task overlaps after immediate execution
       outputWorkerMetadata: false, //TODO: double check settings
       defaultExtension: process.env.ENABLE_JS ? 'js' : 'ts',

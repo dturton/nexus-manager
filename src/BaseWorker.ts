@@ -145,6 +145,7 @@ export default abstract class BaseWorker {
         }
       },
     );
+
     await waitFor(service, state => {
       return (
         state.matches('completed') ||
@@ -152,9 +153,10 @@ export default abstract class BaseWorker {
         state.matches('failed')
       );
     });
-    // await this.done();
+    await this.done();
     await service.stop();
   }
+
   async doneWithError() {
     if (parentPort) {
       parentPort.postMessage('error');
@@ -163,6 +165,7 @@ export default abstract class BaseWorker {
       process.exit(1);
     }
   }
+
   async done() {
     if (parentPort) {
       parentPort.postMessage('done');

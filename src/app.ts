@@ -37,16 +37,17 @@ export class TestPage {
 
   @http.GET('/testJob').name('testJob').description('Test a job')
   async testJob() {
-    const jobPath = path.resolve(__dirname, './jobs/interpret.ts');
+    const jobPath = path.resolve(__dirname, './jobs/worker3.ts');
     const worker = await this.manager.addJob({
       job: jobPath,
       name: 'interpret',
       payload: { info: 'test' },
     });
 
-    return await new Promise<void>((resolve, reject) => {
+    await new Promise<void>((resolve, reject) => {
       this.manager.bree.workers.get('interpret')!.on('error', reject);
       this.manager.bree.workers.get('interpret')!.on('message', message => {
+        console.log(message);
         if (message === 'done') {
           resolve();
         }
@@ -65,7 +66,7 @@ export class TestPage {
 
 new App({
   controllers: [IndexPage, TestPage],
-  providers: [TestPage],
+  providers: [TestPage, Monitor],
   imports: [
     new FrameworkModule({
       publicDir: 'public',

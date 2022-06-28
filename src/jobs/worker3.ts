@@ -4,7 +4,9 @@ import axios from 'axios';
 class Worker1 extends BaseWorker {
   public async run() {
     try {
-      const { data } = await axios.get('http://localhost:3000/jobs/testJob');
+      const { data } = await axios.get(
+        'https://jsonplaceholder.typicode.com/todos/1',
+      );
       return data;
     } catch (error) {
       throw error;
